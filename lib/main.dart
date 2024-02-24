@@ -10,7 +10,7 @@ void main() {
 class MyApp extends StatelessWidget {
   final ValueNotifier<String?> scannedCodeNotifier = ValueNotifier(null);
 
-  MyApp({Key? key}) : super(key: key);
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +142,7 @@ class _MyBodyState extends State<MyBody> {
       widget.scannedCodeNotifier.value = scanData.code;
       Future.delayed(const Duration(seconds: 3), () {
         widget.scannedCodeNotifier.value =
-            'Your App Title'; // Reset to default title
+            'Scan a code'; // Reset to default title
       });
     });
   }
