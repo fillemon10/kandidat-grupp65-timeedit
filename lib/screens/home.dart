@@ -3,23 +3,24 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:timeedit/screens/booking.dart';
+import 'package:timeedit/widgets/navbar.dart';
 
 void main() => runApp(const MaterialApp(home: HomeScreen()));
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Scan a booking code')),
-      body: QrView(),
-    );
+      body: const QrView(),
+      );
   }
 }
 
 class QrView extends StatefulWidget {
-  const QrView({Key? key}) : super(key: key);
+  const QrView({super.key});
 
   @override
   State<StatefulWidget> createState() => _QrViewState();
@@ -36,9 +37,15 @@ class _QrViewState extends State<QrView> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller!.pauseCamera();
+      if (controller != null) {
+        controller!.pauseCamera();
+      }
     }
-    controller!.resumeCamera();
+    if (Platform.isIOS) {
+      if (controller != null) {
+        controller!.resumeCamera();
+      }
+    }
   }
 
   @override
@@ -47,16 +54,6 @@ class _QrViewState extends State<QrView> {
       body: Column(
         children: <Widget>[
           Expanded(flex: 8, child: _buildQrView(context)),
-          // show the result of the scan
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: (result != null)
-                  ? Text(
-                      'Barcode Type: ${result!.format.name}   Data: ${result!.code}')
-                  : const Text('Scan a code'),
-            ),
-          )
         ],
       ),
     );
@@ -93,22 +90,23 @@ class _QrViewState extends State<QrView> {
         // Validate the scanned data format
         if (_isValidScan(scanData)) {
           // pause the camera
-          controller?.pauseCamera();
-          // Navigate to BookingScreen
+          controller.pauseCamera();
+          // Navigate to BookingScreen using navbar
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    BookingScreen(qrCode: scanData.code as String),
-              )).then((value) {
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingScreen(qrCode: scanData.code as String),
+            ),
+          ).then((value) {
+          
             // wait 2 seconds before resuming the camera 
             // TODO: remove this
             Future.delayed(const Duration(seconds: 2), () {
               // resume the camera
-              controller?.resumeCamera();
+              controller.resumeCamera();
             });
             // resume the camera
-            controller?.resumeCamera();
+            controller.resumeCamera();
           });
         }
       });

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
-class MapsScreen extends StatelessWidget {
+class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Maps'),
+        title: Text('Settings'),
       ),
       body: Center(
-        child: Text('Maps Screen'),
+        child: Text(
+          'Settings Screen',
+          style: TextStyle(fontSize: 24),
+        ),
       ),
     );
   }
