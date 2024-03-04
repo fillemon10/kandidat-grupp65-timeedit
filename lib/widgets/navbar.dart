@@ -18,7 +18,7 @@ class NavBar extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     return NavigationBar(
       onDestinationSelected: onNavBarPageSelected,
-      indicatorColor: Colors.blue,
+      indicatorColor: theme.colorScheme.primary,
       selectedIndex: currentPageIndex,
       destinations: const <NavigationDestination>[
         NavigationDestination(

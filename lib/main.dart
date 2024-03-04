@@ -52,13 +52,15 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'My App',
       theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.white,
         brightness: Brightness.light,
-        /* light theme settings */
-      ),
+      )),
       darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+        seedColor: Color.fromARGB(255, 0, 0, 1),
         brightness: Brightness.dark,
-        /* dark theme settings */
-      ),
+      )),
       themeMode: _themeMode, // Use the updated theme mode
       home: Scaffold(
         body: screens[currentPageIndex],
