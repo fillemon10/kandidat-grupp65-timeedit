@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:288023413120:android:72746e54937d3fb1038165",
+        "mobilesdk_app_id": "1:288023413120:android:05ef2d643a68f300038165",
         "android_client_info": {
-          "package_name": "com.example.timeedit"
+          "package_name": "com.group65.timeedit"
         }
       },
       "oauth_client": [],

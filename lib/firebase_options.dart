@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyARftU18gDx-YYja7rvyO0XUSLY-DT-0Lg',
-    appId: '1:288023413120:android:72746e54937d3fb1038165',
+    appId: '1:288023413120:android:05ef2d643a68f300038165',
     messagingSenderId: '288023413120',
     projectId: 'kandidat-grupp-65-timeedit',
     storageBucket: 'kandidat-grupp-65-timeedit.appspot.com',
@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDhv79FCIsD3hoTnW00uZ1UUqnG0_8e8sM',
-    appId: '1:288023413120:ios:447a4db7b8e7cfbf038165',
+    appId: '1:288023413120:ios:fc44a9a255c69e3b038165',
     messagingSenderId: '288023413120',
     projectId: 'kandidat-grupp-65-timeedit',
     storageBucket: 'kandidat-grupp-65-timeedit.appspot.com',
-    iosBundleId: 'com.example.timeedit',
+    iosBundleId: 'com.group65.timeedit',
   );
 }
