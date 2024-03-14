@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:timeedit/firebase_options.dart';
+import 'package:timeedit/screens/checkin.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/maps.dart';
@@ -46,7 +47,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     screens = [
       HomeScreen(),
-      BookingScreen(qrCode: "test"),
+      BookingScreen(),
+      CheckInScreen(),
       MapsScreen(),
       SettingsScreen(
           onThemeChanged:
