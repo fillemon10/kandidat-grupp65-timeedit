@@ -1,12 +1,16 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeedit/screens/after-checkin.dart';
-import 'package:timeedit/screens/booking.dart';
+import 'package:timeedit/screens/book.dart';
 import 'package:timeedit/screens/checkin.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/widgets/navbar.dart';
+import 'package:timeedit/screens/filter.dart';
+import 'providers/theme.dart';
 
 void main() => runApp(MyApp());
 
@@ -34,8 +38,8 @@ final GoRouter _router = GoRouter(
         ),
         StatefulShellBranch(routes: <RouteBase>[
           GoRoute(
-            path: '/booking',
-            builder: (context, state) => BookingScreen(),
+            path: '/book',
+            builder: (context, state) => BookScreen(),
           ),
         ]),
         StatefulShellBranch(routes: <RouteBase>[
@@ -60,6 +64,29 @@ final GoRouter _router = GoRouter(
         path: '/checkin/:id',
         builder: (context, state) =>
             AfterCheckInScreen(id: state.pathParameters['id'].toString())),
+    GoRoute(
+      path: '/filter',
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: FilterScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var begin = Offset(0.0, -1.0);
+            var end = Offset.zero;
+            var curve = Curves.ease;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        );
+      },
+    )
   ],
 );
 
@@ -72,7 +99,19 @@ class MyApp extends StatelessWidget {
       routerConfig: _router,
       title: 'TimeEdit',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(191, 213, 188, 1),
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(191, 213, 188, 1),
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.system,
     );
   }
 }

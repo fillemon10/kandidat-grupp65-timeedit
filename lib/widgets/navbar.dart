@@ -35,7 +35,7 @@ class ScaffoldWithNavbar extends StatelessWidget {
           NavigationDestination(
             selectedIcon: Icon(Icons.calendar_today),
             icon: Icon(Icons.calendar_today_outlined),
-            label: 'Booking',
+            label: 'Book',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.map),
