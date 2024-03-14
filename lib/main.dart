@@ -1,83 +1,78 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:timeedit/firebase_options.dart';
+import 'package:go_router/go_router.dart';
+import 'package:timeedit/screens/after-checkin.dart';
+import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/checkin.dart';
 import 'package:timeedit/screens/home.dart';
-import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/widgets/navbar.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() => runApp(MyApp());
 
-  runApp(MyApp());
-}
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _sectionNavigatorKey = GlobalKey<NavigatorState>();
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key ?? const Key(''));
+final GoRouter _router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/',
+  routes: <RouteBase>[
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return ScaffoldWithNavbar(navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          navigatorKey: _sectionNavigatorKey,
+          routes: <RouteBase>[
+            GoRoute(
+              path: '/',
+              builder: (context, state) => HomeScreen(),
+              routes: <RouteBase>[],
+            ),
+          ],
+        ),
+        StatefulShellBranch(routes: <RouteBase>[
+          GoRoute(
+            path: '/booking',
+            builder: (context, state) => BookingScreen(),
+          ),
+        ]),
+        StatefulShellBranch(routes: <RouteBase>[
+          GoRoute(
+            path: '/maps',
+            builder: (context, state) => MapsScreen(),
+          ),
+        ]),
+        StatefulShellBranch(routes: <RouteBase>[
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => SettingsScreen(),
+          ),
+        ]),
+      ],
+    ),
+    GoRoute(
+      path: '/checkin',
+      builder: (context, state) => CheckInScreen(),
+    ),
+    GoRoute(
+        path: '/checkin/:id',
+        builder: (context, state) =>
+            AfterCheckInScreen(id: state.pathParameters['id'].toString())),
+  ],
+);
 
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int currentPageIndex = 0;
-  ThemeMode _themeMode = ThemeMode.system; // Initialize with system theme
-
-  late List<Widget> screens;
-
-  void onNavBarPageSelected(int index) {
-    setState(() {
-      currentPageIndex = index;
-    });
-  }
-
-  void _handleThemeChanged(ThemeMode mode) {
-    setState(() {
-      _themeMode = mode; // Update theme mode
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    screens = [
-      HomeScreen(),
-      BookingScreen(),
-      CheckInScreen(),
-      MapsScreen(),
-      SettingsScreen(
-          onThemeChanged:
-              _handleThemeChanged), // Initialize with settings screen
-    ];
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My App',
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.white,
-        brightness: Brightness.light,
-      )),
-      darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-        seedColor: Color.fromARGB(255, 0, 0, 1),
-        brightness: Brightness.dark,
-      )),
-      themeMode: _themeMode, // Use the updated theme mode
-      home: Scaffold(
-        body: screens[currentPageIndex],
-        bottomNavigationBar: NavBar(
-          currentPageIndex: currentPageIndex,
-          onNavBarPageSelected: onNavBarPageSelected,
-        ),
-      ),
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: 'TimeEdit',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(),
     );
   }
 }

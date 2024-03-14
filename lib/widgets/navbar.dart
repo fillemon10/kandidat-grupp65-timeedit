@@ -1,49 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class NavBar extends StatelessWidget {
-  final int currentPageIndex;
-  final ValueChanged<int> onNavBarPageSelected;
+class ScaffoldWithNavbar extends StatelessWidget {
+  const ScaffoldWithNavbar(this.navigationShell, {super.key});
 
-  const NavBar({
-    Key? key,
-    required this.currentPageIndex,
-    required this.onNavBarPageSelected,
-  }) : super(key: key);
+  /// The navigation shell and container for the branch Navigators.
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
-      body: Container(),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.qr_code_scanner_outlined),
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          onNavBarPageSelected(2);
+          // Navigate to the selected page
+          context.push('/checkin');
         },
-        //larger
+        label: const Text('Check-in'),
+        icon: const Icon(Icons.qr_code_scanner_outlined),
       ),
+      body: navigationShell,
       bottomNavigationBar: NavigationBar(
-        onDestinationSelected: onNavBarPageSelected,
-        selectedIndex: currentPageIndex,
-        destinations: const <NavigationDestination>[
+        onDestinationSelected: (int index) {
+          // Navigate to the selected page
+          navigationShell.goBranch(index,
+              initialLocation: index == navigationShell.currentIndex);
+        },
+        selectedIndex: navigationShell.currentIndex,
+        destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
             selectedIcon: Icon(Icons.calendar_today),
+            icon: Icon(Icons.calendar_today_outlined),
             label: 'Booking',
           ),
           NavigationDestination(
-            icon: Icon(Icons.map_outlined),
             selectedIcon: Icon(Icons.map),
+            icon: Icon(Icons.map_outlined),
             label: 'Maps',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Settings',
           ),
         ],

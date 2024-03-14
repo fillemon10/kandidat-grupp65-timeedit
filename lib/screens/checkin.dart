@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:timeedit/screens/booking.dart';
 
 void main() => runApp(const MaterialApp(home: CheckInScreen()));
 
@@ -70,7 +70,7 @@ class _QrViewState extends State<QrView> {
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-          borderColor: const Color.fromARGB(255, 255, 17, 0),
+          borderColor: Theme.of(context).primaryColor,
           borderRadius: 10,
           borderLength: 50,
           borderWidth: 10,
@@ -91,21 +91,7 @@ class _QrViewState extends State<QrView> {
           // pause the camera
           controller.pauseCamera();
           // Navigate to BookingScreen using navbar
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookingScreen(),
-            ),
-          ).then((value) {
-            // wait 2 seconds before resuming the camera
-            // TODO: remove this
-            Future.delayed(const Duration(seconds: 2), () {
-              // resume the camera
-              controller.resumeCamera();
-            });
-            // resume the camera
-            controller.resumeCamera();
-          });
+          context.push("/checkin/${scanData.code}");
         }
       });
     });
