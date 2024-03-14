@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288023413120",
+    "project_id": "kandidat-grupp-65-timeedit",
+    "storage_bucket": "kandidat-grupp-65-timeedit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288023413120:android:05ef2d643a68f300038165",
+        "android_client_info": {
+          "package_name": "com.group65.timeedit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARftU18gDx-YYja7rvyO0XUSLY-DT-0Lg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

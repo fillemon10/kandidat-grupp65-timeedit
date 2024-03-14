@@ -1,4 +1,4 @@
-package com.example.timeedit
+package com.group65.timeedit
 
 import io.flutter.embedding.android.FlutterActivity
 
