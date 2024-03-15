@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +9,6 @@ import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/widgets/navbar.dart';
 import 'package:timeedit/screens/filter.dart';
-import 'providers/theme.dart';
 
 void main() => runApp(MyApp());
 
@@ -66,25 +64,8 @@ final GoRouter _router = GoRouter(
             AfterCheckInScreen(id: state.pathParameters['id'].toString())),
     GoRoute(
       path: '/filter',
-      pageBuilder: (context, state) {
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: FilterScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var begin = Offset(0.0, -1.0);
-            var end = Offset.zero;
-            var curve = Curves.ease;
-
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        );
+      builder: (context, state) {
+        return FilterScreen();
       },
     )
   ],

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:week_of_year/week_of_year.dart';
+import 'package:go_router/go_router.dart';
+
+const int AMOUNT_OF_DAYS = 14; // Global variable for the number of tab days
 
 class BookScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BookingTabBar(
-      today: DateTime.now(),
+    return DefaultTabController(
+      length: AMOUNT_OF_DAYS + 1,
+      child: BookingTabBar(
+        today: DateTime.now(),
+      ),
     );
   }
 }
@@ -21,105 +25,115 @@ class BookingTabBar extends StatefulWidget {
   _BookingTabBarState createState() => _BookingTabBarState();
 }
 
-class _BookingTabBarState extends State<BookingTabBar> {
-  late DateTime _today;
+class _BookingTabBarState extends State<BookingTabBar>
+    with TickerProviderStateMixin {
+  late DateTime _selectedDate;
   late List<DateTime> _tabDays;
-  late int _initialTabIndex = 0; // Initialize _initialTabIndex to 0
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _today = widget.today;
-    _generateTabDays();
-    _initialTabIndex = _getInitialTabIndex();
+    _selectedDate = widget.today;
+    _generateTabDays(_selectedDate);
+    _tabController = TabController(
+      length: AMOUNT_OF_DAYS + 1,
+      vsync: this,
+    );
+    _tabController.addListener(_onTabChanged);
   }
 
-  void _generateTabDays() {
-    _tabDays = [];
-    for (int i = 0; i < 14; i++) {
-      _tabDays.add(_today.add(Duration(days: i)));
-    }
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
-  int _getInitialTabIndex() {
-    for (int i = 0; i < _tabDays.length; i++) {
-      if (_tabDays[i].year == _today.year &&
-          _tabDays[i].month == _today.month &&
-          _tabDays[i].day == _today.day) {
-        return i;
-      }
-    }
-    return 0;
+  void _onTabChanged() {
+    setState(() {
+      _selectedDate = _tabDays[_tabController.index];
+    });
+  }
+
+  void _generateTabDays(DateTime selectedDate) {
+    _tabDays = List.generate(
+        AMOUNT_OF_DAYS + 1, (i) => selectedDate.add(Duration(days: i)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      initialIndex: _initialTabIndex,
-      length: _tabDays.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Book'),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.calendar_month_sharp),
-              onPressed: () {
-                showDatePicker(
-                  context: context,
-                  initialDate: _today,
-                  firstDate: DateTime(2021),
-                  lastDate: DateTime(2025),
-                ).then((DateTime? newSelectedDay) {
-                  if (newSelectedDay != null) {
-                    setState(() {
-                      _today = newSelectedDay;
-                      _generateTabDays();
-                      _initialTabIndex = _getInitialTabIndex();
-                    });
-                    // Navigate to the selected tab
-                    DefaultTabController.of(context)!
-                        .animateTo(_initialTabIndex);
-                  }
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.filter_alt_outlined),
-              onPressed: () {
-                context.push('/filter');
-              },
-            )
-          ],
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: _tabDays.map((day) {
-              return Tab(
-                text: _formatDate(day),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Book'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.calendar_month_outlined),
+            onPressed: () async {
+              final DateTime? picked = await showDatePicker(
+                context: context,
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: AMOUNT_OF_DAYS)),
+                initialDate: _selectedDate,
               );
-            }).toList(),
+              _onDatePicked(picked);
+            },
           ),
+          IconButton(
+            icon: const Icon(Icons.filter_alt_outlined),
+            onPressed: () {
+              context.push('/filter');
+            },
+          )
+        ],
+        bottom: TabBar(
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          controller: _tabController,
+          tabs: _tabDays.map((day) => Tab(text: _formatDate(day))).toList(),
         ),
-        body: TabBarView(
-          children: _tabDays.map((day) {
-            return Center(
-              child: Text(_formatDate(day)),
-            );
-          }).toList(),
-        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: _tabDays.map((day) {
+          return Center(
+            child: Text(
+              'Bookings for ${_formatDate(day)}',
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
-  void _generateMoreTabs() {
-    setState(() {
-      for (int i = 0; i < 7; i++) {
-        _tabDays.add(_tabDays.last.add(Duration(days: i + 1)));
-      }
-    });
+  String _formatDate(DateTime date) {
+    //if date is today, return 'Today'
+    if (date.year == DateTime.now().year &&
+        date.month == DateTime.now().month &&
+        date.day == DateTime.now().day) {
+      return 'Today';
+    }
+    //if date is tomorrow, return 'Tomorrow'
+    if (date.year == DateTime.now().year &&
+        date.month == DateTime.now().month &&
+        date.day == DateTime.now().day + 1) {
+      return 'Tomorrow';
+    }
+    //else return the date in the format 'EEE dd MMM'
+    return DateFormat('EEE dd MMM').format(date);
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('EEE dd MMM').format(date);
+  void _onDatePicked(DateTime? picked) {
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        DateTime today = DateTime.now();
+        int dayBetween = _selectedDate.difference(today).inDays;
+        // Check if 'picked' is later today and add 1 if so
+        if (_selectedDate.isAfter(today)) {
+          dayBetween += 1;
+        }
+        _tabController.animateTo(dayBetween);
+      });
+    }
   }
 }

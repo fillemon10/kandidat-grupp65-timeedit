@@ -8,7 +8,7 @@ class MapsScreen extends StatelessWidget {
         title: Text('Maps'),
       ),
       body: Center(
-        child: Text('Maps Screen'),
+        child: Text('Maps Screen')
       ),
     );
   }
