@@ -12,7 +12,9 @@ class CheckInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Check in')),
+      appBar: AppBar(
+        title: const Text('Check-in'),
+      ),
       body: const QrView(),
     );
   }

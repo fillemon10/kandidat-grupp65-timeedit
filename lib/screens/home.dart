@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
         title: Text('Home'),
       ),
       body: ListView(
-        children: [
+        children: const [
           TitleSection(
             title: 'Looking for a room right now?',
           ),
@@ -39,6 +39,9 @@ class TitleSection extends StatelessWidget {
               children: [
                 Text(
                   title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
               ],
             ),
@@ -87,24 +90,21 @@ class DataTableExample extends StatelessWidget {
         DataColumn(
           label: Expanded(
             child: Text(
-              'Name',
-              style: TextStyle(fontStyle: FontStyle.italic),
+              'Room',
             ),
           ),
         ),
         DataColumn(
           label: Expanded(
             child: Text(
-              'Age',
-              style: TextStyle(fontStyle: FontStyle.italic),
+              'Time',
             ),
           ),
         ),
         DataColumn(
           label: Expanded(
             child: Text(
-              'Role',
-              style: TextStyle(fontStyle: FontStyle.italic),
+              'Extra',
             ),
           ),
         ),

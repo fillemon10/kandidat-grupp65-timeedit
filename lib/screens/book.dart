@@ -74,7 +74,8 @@ class _BookingTabBarState extends State<BookingTabBar>
               final DateTime? picked = await showDatePicker(
                 context: context,
                 firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: AMOUNT_OF_DAYS)),
+                lastDate:
+                    DateTime.now().add(const Duration(days: AMOUNT_OF_DAYS)),
                 initialDate: _selectedDate,
               );
               _onDatePicked(picked);
@@ -93,7 +94,7 @@ class _BookingTabBarState extends State<BookingTabBar>
       body: Column(
         children: [
           if (_showFilters) // Show filter chips if _showFilters is true
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
               child: FilterChipExample(),
             ),
@@ -110,13 +111,10 @@ class _BookingTabBarState extends State<BookingTabBar>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: _tabDays.map((day) {
-                return Center(
-                  child: Text(
-                    'Bookings for ${_formatDate(day)}',
-                  ),
-                );
-              }).toList(),
+              children: List.generate(
+                AMOUNT_OF_DAYS + 1,
+                (index) => AllCollapsibleTables(),
+              ),
             ),
           ),
         ],
@@ -172,7 +170,7 @@ class _FilterChipExampleState extends State<FilterChipExample> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Wrap(
           spacing: 4.0,
           runSpacing: 4.0,
@@ -193,6 +191,198 @@ class _FilterChipExampleState extends State<FilterChipExample> {
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+}
+
+class AllCollapsibleTables extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: <Widget>[
+        for (int i = 0; i < 10; i++) ...[
+          CollapsibleTable(
+            title: 'ED-blocket',
+            table: BookingTable(),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class CollapsibleTable extends StatefulWidget {
+  final String title;
+  final Widget table;
+
+  const CollapsibleTable({Key? key, required this.title, required this.table})
+      : super(key: key);
+
+  @override
+  _CollapsibleTableState createState() => _CollapsibleTableState();
+}
+
+class _CollapsibleTableState extends State<CollapsibleTable> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        ExpansionTile(
+          childrenPadding: EdgeInsets.all(0),
+          initiallyExpanded: true,
+          leading: CircleAvatar(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+          title: Text('ED-blocket'),
+          // Contents
+          children: [
+            BookingTable(),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class BookingTable extends StatefulWidget {
+  const BookingTable({Key? key}) : super(key: key);
+
+  @override
+  _BookingTableState createState() => _BookingTableState();
+}
+
+class _BookingTableState extends State<BookingTable> {
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveViewer(
+      child: DataTable(
+        headingRowColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return Theme.of(context).colorScheme.primary.withOpacity(0.08);
+          }
+          return Theme.of(context).colorScheme.primary.withOpacity(0.1);
+        }),
+        showBottomBorder: false,
+        columnSpacing: 15.0,
+        columns: const <DataColumn>[
+          DataColumn(
+            label: Expanded(
+              child: Text('Room'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('8'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('9'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('10'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('11'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('12'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('13'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('14'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('15'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('16'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('17'),
+            ),
+          ),
+          DataColumn(
+            label: Expanded(
+              child: Text('18'),
+            ),
+          ),
+        ],
+        rows: <DataRow>[
+          DataRow(
+            cells: <DataCell>[
+              DataCell(Text('ED-3123A')),
+              DataCell(
+                // Use SizedBox.expand to fill the cell
+                SizedBox.expand(
+                    // Use container to fill the background color
+                    child: Container(
+                  color: Colors.green,
+                )),
+              ),
+              DataCell(
+                // Use SizedBox.expand to fill the cell
+                SizedBox.expand(
+                    // Use container to fill the background color
+                    child: Container(
+                  color: Colors.green,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      " ",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )),
+              ),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+            ],
+          ),
+          DataRow(
+            cells: <DataCell>[
+              DataCell(Text('B')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text('')),
+              DataCell(Text(''))
+            ],
+          )
+        ],
       ),
     );
   }
