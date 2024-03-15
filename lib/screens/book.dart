@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
 
 const int AMOUNT_OF_DAYS = 14; // Global variable for the number of tab days
+
+enum BookingFilter { AvailableNow, House, Amenities, Seats, ClearAll }
 
 class BookScreen extends StatelessWidget {
   @override
@@ -30,6 +31,7 @@ class _BookingTabBarState extends State<BookingTabBar>
   late DateTime _selectedDate;
   late List<DateTime> _tabDays;
   late TabController _tabController;
+  bool _showFilters = false; // Track filter chips visibility
 
   @override
   void initState() {
@@ -81,26 +83,43 @@ class _BookingTabBarState extends State<BookingTabBar>
           IconButton(
             icon: const Icon(Icons.filter_alt_outlined),
             onPressed: () {
-              context.push('/filter');
+              setState(() {
+                _showFilters = !_showFilters; // Toggle filter chips visibility
+              });
             },
-          )
+          ),
         ],
-        bottom: TabBar(
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          controller: _tabController,
-          tabs: _tabDays.map((day) => Tab(text: _formatDate(day))).toList(),
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _tabDays.map((day) {
-          return Center(
-            child: Text(
-              'Bookings for ${_formatDate(day)}',
+      body: Column(
+        children: [
+          if (_showFilters) // Show filter chips if _showFilters is true
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilterChipExample(),
             ),
-          );
-        }).toList(),
+          TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: _tabDays.map((day) {
+              return Tab(
+                text: _formatDate(day),
+              );
+            }).toList(),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: _tabDays.map((day) {
+                return Center(
+                  child: Text(
+                    'Bookings for ${_formatDate(day)}',
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -135,5 +154,46 @@ class _BookingTabBarState extends State<BookingTabBar>
         _tabController.animateTo(dayBetween);
       });
     }
+  }
+}
+
+class FilterChipExample extends StatefulWidget {
+  const FilterChipExample({Key? key}) : super(key: key);
+
+  @override
+  State<FilterChipExample> createState() => _FilterChipExampleState();
+}
+
+class _FilterChipExampleState extends State<FilterChipExample> {
+  Set<BookingFilter> filters = <BookingFilter>{};
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Wrap(
+          spacing: 4.0,
+          runSpacing: 4.0,
+          children: BookingFilter.values.map((filter) {
+            return FilterChip(
+              visualDensity: VisualDensity.compact,
+              label: Text(filter.toString().split('.').last),
+              selected: filters.contains(filter),
+              onSelected: (bool selected) {
+                setState(() {
+                  if (selected) {
+                    filters.add(filter);
+                  } else {
+                    filters.remove(filter);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 }
