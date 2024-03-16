@@ -46,7 +46,7 @@ class ApplicationState extends ChangeNotifier {
 
   Future<List<Room>> getRooms() async {
     if (!_roomsLoaded) {
-      _rooms = await _fetchRooms(); 
+      _rooms = await _fetchRooms();
       _roomsLoaded = true;
     }
     return _rooms;
@@ -54,7 +54,7 @@ class ApplicationState extends ChangeNotifier {
 
   // Internal helper function for fetching rooms from Firestore
   Future<List<Room>> _fetchRooms() async {
-    await init(); 
+    await init();
     try {
       final snapshot =
           await FirebaseFirestore.instance.collection('rooms').get();
@@ -63,7 +63,8 @@ class ApplicationState extends ChangeNotifier {
           .toList();
       return rooms;
     } catch (error) {
-      rethrow; // Rethrow the error for further handling
+      log('Error fetching rooms: $error');
+      rethrow;
     }
   }
 }

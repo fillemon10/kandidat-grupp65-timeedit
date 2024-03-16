@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/screens/book.dart'; // for _formatDate
 
@@ -65,7 +66,12 @@ class _BookingTabBarState extends State<BookingTabBar>
               _onDatePicked(picked);
             },
           ),
-          //IconButton( ... Add your filter button here ...),
+          IconButton(
+            icon: const Icon(Icons.filter_alt_outlined),
+            onPressed: () {
+              context.push('/filter');
+            },
+          ),
         ],
       ),
       body: Column(
