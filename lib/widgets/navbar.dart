@@ -11,6 +11,7 @@ class ScaffoldWithNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        elevation: 0,
         onPressed: () {
           // Navigate to the selected page
           context.push('/checkin');
