@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.18.1
   calendar_view: ^1.1.0
   timelines: ^0.1.0
+  two_dimensional_scrollables: ^0.1.2
   
 
 dev_dependencies:

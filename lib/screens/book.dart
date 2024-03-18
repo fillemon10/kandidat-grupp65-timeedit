@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timeedit/app_state.dart';
+import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
+import 'package:timeedit/widgets/booking_event.dart';
 import 'package:timeedit/widgets/booking_row.dart';
 import 'package:timeedit/widgets/booking_tab_bar.dart';
 
-const int AMOUNT_OF_DAYS = 14; // Global variable for the number of tab days
+const int AMOUNT_OF_DAYS = 14;
 
 class BookScreen extends StatelessWidget {
   @override
@@ -26,9 +28,13 @@ class BookScreen extends StatelessWidget {
 class BuildingCollapsibleTable extends StatefulWidget {
   final String buildingName;
   final List<Room> rooms;
+  final Map<String, List<Booking>> bookingsByRoom; // For storing bookings
 
   const BuildingCollapsibleTable(
-      {Key? key, required this.buildingName, required this.rooms})
+      {Key? key,
+      required this.buildingName,
+      required this.rooms,
+      required this.bookingsByRoom})
       : super(key: key);
 
   @override
@@ -37,68 +43,40 @@ class BuildingCollapsibleTable extends StatefulWidget {
 }
 
 class _BuildingCollapsibleTableState extends State<BuildingCollapsibleTable> {
-  bool _isExpanded = true; // Initially expanded
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        childrenPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        initiallyExpanded: _isExpanded,
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Text(widget.buildingName[0] + widget.buildingName[1]),
-        ),
-        title: Text(widget.buildingName),
-        onExpansionChanged: (value) => setState(() => _isExpanded = value),
-        // Toggle expansion state
-        children: [
-          Row(
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 80),
-                child: Column(children: [
-                  SizedBox(child: Text('Room')), // Room header
-                  for (var room in widget.rooms)
-                    SizedBox(
-                        height: 40,
-                        child: Row(
-                          children: [
-                            Center(
-                              child: Text(room.name),
-                            )
-                          ],
-                        )),
-                ]),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        // Header row for times
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly, // Distribute times
-                          children: [
-                            for (var hour = 8; hour <= 18; hour++)
-                              Text('$hour'),
-                          ],
-                        ),
-                      ),
-                      for (var room in widget.rooms)
-                        SizedBox(height: 40, child: RoomCalendarRow(room: room))
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+    return ExpansionTile(
+      shape: Border.all(color: Colors.transparent),
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+      initiallyExpanded: _isExpanded,
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Text(widget.buildingName[0] + widget.buildingName[1]),
       ),
+      title: Text(widget.buildingName),
+      onExpansionChanged: (value) => setState(() => _isExpanded = value),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var room in widget.rooms) ...[
+                    BookingRow(
+                      room: room,
+                      bookings: widget
+                          .bookingsByRoom[room.name]!, // Pass specific bookings
+                    ),
+                  ]
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -113,18 +91,24 @@ class AllCollapsibleTable extends StatefulWidget {
 class _AllCollapsibleTableState extends State<AllCollapsibleTable> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<Room>>>(
-      future: _groupRoomsByBuilding(), // New function to organize rooms
+    return FutureBuilder<Map<String, dynamic>>(
+      // Map to store both rooms and bookings
+      future: _fetchData(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          if (!mounted) return Container();
+          final data = snapshot.data!;
           return ListView.builder(
-            itemCount: snapshot.data!.keys.length,
+            itemCount: data.keys.length,
             itemBuilder: (context, index) {
-              final buildingName = snapshot.data!.keys.elementAt(index);
-              final rooms = snapshot.data![buildingName]!;
+              final buildingName = data.keys.elementAt(index);
+              final rooms = data[buildingName]['rooms'] as List<Room>;
+              final bookingsByRoom =
+                  data[buildingName]['bookings'] as Map<String, List<Booking>>;
               return BuildingCollapsibleTable(
                 buildingName: buildingName,
                 rooms: rooms,
+                bookingsByRoom: bookingsByRoom,
               );
             },
           );
@@ -135,8 +119,23 @@ class _AllCollapsibleTableState extends State<AllCollapsibleTable> {
     );
   }
 
+  // Fetch both rooms and bookings
+  Future<Map<String, dynamic>> _fetchData() async {
+    try {
+      final roomsByBuilding = await _groupRoomsByBuilding();
+      final bookingsByRoom = await _groupBookingsByRoom();
+      return roomsByBuilding.map((building, rooms) {
+        return MapEntry(building, {'rooms': rooms, 'bookings': bookingsByRoom});
+      });
+    } catch (e) {
+      log('Error fetching data: $e');
+      rethrow;
+    }
+  }
+
   Future<Map<String, List<Room>>> _groupRoomsByBuilding() async {
-    List<Room> rooms = await Provider.of<ApplicationState>(context).getRooms();
+    List<Room> rooms =
+        await Provider.of<ApplicationState>(context, listen: false).getRooms();
     Map<String, List<Room>> roomsByBuilding = {};
     for (var room in rooms) {
       if (room.bookable == true) {
@@ -148,5 +147,18 @@ class _AllCollapsibleTableState extends State<AllCollapsibleTable> {
       }
     }
     return roomsByBuilding;
+  }
+
+  Future<Map<String, List<Booking>>> _groupBookingsByRoom() async {
+    List<Room> rooms =
+        await Provider.of<ApplicationState>(context, listen: false).getRooms();
+    Map<String, List<Booking>> bookingsByRoom = {};
+    for (var room in rooms) {
+      List<Booking> bookings =
+          await Provider.of<ApplicationState>(context, listen: false)
+              .getBookings(room.name);
+      bookingsByRoom[room.name] = bookings;
+    }
+    return bookingsByRoom;
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:timeedit/screens/book.dart'; // for _formatDate
+import 'package:timeedit/screens/book.dart';
+import 'package:timeedit/widgets/filter_drawer.dart'; // for _formatDate
 
 class BookingTabBar extends StatefulWidget {
   final DateTime today;
@@ -47,10 +48,13 @@ class _BookingTabBarState extends State<BookingTabBar>
         AMOUNT_OF_DAYS + 1, (i) => selectedDate.add(Duration(days: i)));
   }
 
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Book'),
         actions: <Widget>[
           IconButton(
@@ -68,10 +72,9 @@ class _BookingTabBarState extends State<BookingTabBar>
           ),
           IconButton(
             icon: const Icon(Icons.filter_alt_outlined),
-            onPressed: () {
-              context.push('/filter');
-            },
-          ),
+            onPressed: () =>
+                _key.currentState!.openDrawer(), // <-- Opens drawer
+          )
         ],
       ),
       body: Column(
@@ -96,6 +99,10 @@ class _BookingTabBarState extends State<BookingTabBar>
             ),
           ),
         ],
+      ),
+      key: _key,
+      drawer: Drawer(
+        child: FilterDrawer(),
       ),
     );
   }

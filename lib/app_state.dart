@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
 
 import 'firebase_options.dart';
@@ -64,6 +65,37 @@ class ApplicationState extends ChangeNotifier {
       return rooms;
     } catch (error) {
       log('Error fetching rooms: $error');
+      rethrow;
+    }
+  }
+
+  // Bookings data
+  List<Booking> _bookings = [];
+  bool _bookingsLoaded = false;
+
+  Future<List<Booking>> getBookings(roomName) async {
+    if (!_bookingsLoaded) {
+      _bookings = await _fetchBookings(roomName);
+      _bookingsLoaded = true;
+    }
+    return _bookings;
+  }
+
+  // Internal helper function for fetching bookings from Firestore
+  Future<List<Booking>> _fetchBookings(roomName) async {
+    await init();
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('roomName', isEqualTo: roomName)
+          .get();
+      final bookings = snapshot.docs
+          .map((doc) => Booking.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      return bookings;
+    } catch (error) {
+      log('Error fetching bookings: $error');
       rethrow;
     }
   }
