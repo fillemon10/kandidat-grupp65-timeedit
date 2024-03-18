@@ -8,10 +8,16 @@ class FilterDrawer extends StatefulWidget {
 }
 
 class _FilterDrawerState extends State<FilterDrawer> {
+  Map<String, dynamic> initialFilters = {
+    'Building': <String>{'All Buildings'},
+    'Price Range': RangeValues(20, 100),
+    'Color': <Color>{},
+    'Brand': null,
+  };
   Map<String, dynamic> filters = {
-    'Category': null,
-    'Price Range': null,
-    'Color': null,
+    'Building': <String>{'All Buildings'},
+    'Price Range': RangeValues(20, 100),
+    'Color': <Color>{},
     'Brand': null,
   };
 
@@ -19,29 +25,29 @@ class _FilterDrawerState extends State<FilterDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 57),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 45),
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               FilledButton.tonal(
-                onPressed: filters.isEmpty
-                    ? null
-                    : () {
+                onPressed: filters.values.any((value) => value != null)
+                    ? () {
                         setState(() {
-                          filters.clear();
+                          filters = _deepCopyFilters(initialFilters);
                         });
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: filters.isEmpty
-                      ? Colors.grey
-                      : Theme.of(context).primaryColor,
-                ),
-                child: Text(
-                  'Reset All',
-                  style: TextStyle(
-                    color: filters.isEmpty ? Colors.grey : Colors.white,
-                  ),
+                      }
+                    : null,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Important for centering
+                  children: [
+                    Icon(Icons.refresh),
+                    SizedBox(width: 5), // Small spacing
+                    Text(
+                      'Reset All',
+                      style: TextStyle(),
+                    ),
+                  ],
                 ),
               ),
               IconButton(
@@ -56,47 +62,144 @@ class _FilterDrawerState extends State<FilterDrawer> {
     );
   }
 
+  Map<String, dynamic> _deepCopyFilters(Map<String, dynamic> filters) {
+    final copy = Map<String, dynamic>.from(filters);
+    copy.forEach((key, value) {
+      if (value is Set) {
+        copy[key] = Set.from(value);
+      } else if (value is RangeValues) {
+        copy[key] = RangeValues(value.start, value.end);
+      }
+    });
+    return copy;
+  }
+
   List<Widget> _buildFilterSections(Map<String, dynamic> filters) {
     return [
-      _buildCategoryFilter(filters),
+      _buildBuildingFilter(filters),
       Divider(),
       SizedBox(height: 8),
-      _buildPriceRangeFilter(filters),
+      _buildAnemitiesFilter(filters),
       Divider(),
       SizedBox(height: 8),
-      _buildColorFilter(filters),
+      _buildSeatsFilter(filters),
       Divider(),
       SizedBox(height: 8),
-      _buildBrandFilter(filters),
+      _buildSharedFilter(filters),
       Divider(),
     ];
   }
 
   // --- Filter Section Widgets ---
-  Widget _buildCategoryFilter(Map<String, dynamic> filters) {
-    List<String> categories = ['Shoes', 'Shirts', 'Pants', 'Hats'];
+  Widget _buildBuildingFilter(Map<String, dynamic> filters) {
+    List<String> buildings = [
+      'Bibliteket',
+      'Maskin',
+      'Edit',
+      'Vasa',
+      'Fysik',
+      'Jupiter',
+      'SB 1',
+      'SB 2',
+      'Kemi',
+      'Kuggen',
+      'Kårhuset',
+    ];
 
+    //make filterChips
+    List<Widget> filterChips = [];
+    for (var building in buildings) {
+      filterChips.add(
+        FilterChip(
+          label: Text(building),
+          selected: filters['Building'] != null &&
+              filters['Building'].contains(building),
+          onSelected: (value) {
+            setState(() {
+              if (value) {
+                if (filters['Building'] == null) {
+                  filters['Building'] = <String>{};
+                }
+                filters['Building'].add(building);
+              } else {
+                filters['Building'].remove(building);
+              }
+            });
+          },
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Category'),
-        SizedBox(height: 8),
-        for (var category in categories)
-          RadioListTile(
-            title: Text(category),
-            value: category,
-            groupValue: filters['Category'],
-            onChanged: (value) {
-              setState(() {
-                filters['Category'] = value;
-              });
-            },
+        ExpansionTile(
+          tilePadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10), // Remove default padding
+
+          shape: Border.all(color: Colors.transparent),
+          initiallyExpanded: true,
+          title: Row(
+            children: [
+              Icon(Icons.apartment),
+              SizedBox(width: 8),
+              const Text(
+                'Buildings',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
+          children: [
+            Wrap(
+              // align with start from left to right
+              alignment: WrapAlignment.start,
+              spacing: 6,
+              children: [
+                ...buildings
+                    .map((building) => FilterChip(
+                          // Non-"All Buildings" chips
+                          label: Text(building),
+                          selected: filters['Building'] != null &&
+                              filters['Building'].contains(building),
+                          onSelected: (value) {
+                            setState(() {
+                              if (value) {
+                                filters['Building'].add(building);
+                                if (filters['Building']
+                                    .contains('All Buildings')) {
+                                  filters['Building'].remove('All Buildings');
+                                }
+                              } else {
+                                filters['Building'].remove(building);
+                              }
+                            });
+                          },
+                        ))
+                    .toList(),
+                FilterChip(
+                  // "All Buildings" chip
+                  label: Text('All Buildings'),
+                  selected: filters['Building'] != null &&
+                      filters['Building'].contains('All Buildings'),
+                  onSelected: (value) {
+                    setState(() {
+                      if (value) {
+                        filters['Building'] = <String>{
+                          'All Buildings'
+                        }; // Clear other selections
+                      } else {
+                        filters['Building'].remove('All Buildings');
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildPriceRangeFilter(Map<String, dynamic> filters) {
+  Widget _buildAnemitiesFilter(Map<String, dynamic> filters) {
     RangeValues _currentRange = RangeValues(20, 100); // Default
 
     return Column(
@@ -119,7 +222,7 @@ class _FilterDrawerState extends State<FilterDrawer> {
     );
   }
 
-  Widget _buildColorFilter(Map<String, dynamic> filters) {
+  Widget _buildSeatsFilter(Map<String, dynamic> filters) {
     List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow];
 
     return Column(
@@ -151,7 +254,7 @@ class _FilterDrawerState extends State<FilterDrawer> {
     );
   }
 
-  Widget _buildBrandFilter(Map<String, dynamic> filters) {
+  Widget _buildSharedFilter(Map<String, dynamic> filters) {
     List<String> brands = ['Nike', 'Adidas', 'Puma', 'Reebok'];
 
     return Column(
