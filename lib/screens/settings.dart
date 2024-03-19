@@ -15,6 +15,16 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      /**
+       * Creating the appbar
+       * 
+       * TODO:
+       * 1. Set correct background color (if any is needed)
+       */
+      appBar: AppBar(
+          backgroundColor: Colors.green,
+          title: const Text('Settings'),
+        ),
       body: Container(
         alignment: Alignment.center,
         child: const Text('Settings Screen'),
