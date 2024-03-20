@@ -25,7 +25,9 @@ import 'package:go_router/go_router.dart';
 ///4. Add missing images to buttons
 ///     Get these from figma
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
+  bool notifications = false;
+  bool colorBlindMode = false;
 
   @override
   Widget build(BuildContext context){
@@ -61,6 +63,42 @@ class SettingsScreen extends StatelessWidget {
               children: [
 
                 /**
+                 * Switch buttons container
+                 */
+                Container(
+                  child: Column(
+                    children: [
+
+                      /**
+                       * Notification switch
+                       * 
+                       * TODO: Make the switch switch states
+                       */
+                      Switch(
+                        value: notifications, 
+                        onChanged: (bool value) {
+                          notifications = value;
+                          print('notifications');
+                        }
+                      ),
+                      
+                      /**
+                       * Colorblind switch
+                       * 
+                       * TODO: Make the switch switch states
+                       */
+                      Switch(
+                        value: colorBlindMode, 
+                        onChanged: (bool value) {
+                          colorBlindMode = value;
+                          print('ColorBlindMode');
+                        }
+                      ),
+                    ],
+                  ),
+                ),
+
+                /**
                  * Edit Favourite Rooms button's container
                  */
                 Container(
@@ -69,7 +107,7 @@ class SettingsScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         shadowColor: Color.fromARGB(0, 83, 80, 80),
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
                       ),
                       onPressed: () {
@@ -102,7 +140,7 @@ class SettingsScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(
                           shadowColor: Color.fromARGB(0, 83, 80, 80),
                           shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(7)),
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
                           ),
                         ),
                       onPressed: () {
@@ -128,7 +166,7 @@ class SettingsScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(
                           shadowColor: Color.fromARGB(0, 83, 80, 80),
                           shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(7)),
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
                               
                           ),
                         ),
@@ -153,30 +191,4 @@ class SettingsScreen extends StatelessWidget {
             ),
     );
   }
-
-  
 }
-
-  //Det gamla Filip hade i settings
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //       appBar: AppBar(
-  //         title: Text('Settings')),
-  //       body: Center(
-  //           child: Consumer<ApplicationState>(
-  //         builder: (context, appState, _) => appState.loggedIn
-  //             ? ElevatedButton(
-  //                 onPressed: () async {
-  //                   await FirebaseAuth.instance.signOut();
-  //                 },
-  //                 child: Text('Sign out'),
-  //               )
-  //             : ElevatedButton(
-  //                 onPressed: () {
-  //                   context.push('/sign-in');
-  //                 },
-  //                 child: Text('Sign in'),
-  //               ),
-  //       )));
-  // }
