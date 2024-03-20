@@ -68,31 +68,56 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   child: Column(
                     children: [
-
-                      /**
-                       * Notification switch
-                       * 
-                       * TODO: Make the switch switch states
-                       */
-                      Switch(
-                        value: notifications, 
-                        onChanged: (bool value) {
-                          notifications = value;
-                          print('notifications');
-                        }
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            'Enable Notifications:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300
+                            ),
+                          ),
+                          /**
+                           * Notification switch
+                           * 
+                           * TODO: Make the switch switch states
+                           */
+                          Switch(
+                            value: notifications, 
+                            onChanged: (bool value) {
+                              notifications = value;
+                              print('Notifications');
+                            }
+                          ),
+                        ]
                       ),
-                      
-                      /**
-                       * Colorblind switch
-                       * 
-                       * TODO: Make the switch switch states
-                       */
-                      Switch(
-                        value: colorBlindMode, 
-                        onChanged: (bool value) {
-                          colorBlindMode = value;
-                          print('ColorBlindMode');
-                        }
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          
+                          Text(
+                            'Enable Color Blind Mode:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300
+                            ),
+                          ),
+
+                          /**
+                           * Colorblind switch
+                           * 
+                           * TODO: Make the switch switch states
+                           */
+                          Switch(
+                            value: colorBlindMode, 
+                            onChanged: (bool value) {
+                              colorBlindMode = value;
+                              print('ColorBlindMode');
+                            }
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -101,6 +126,7 @@ class SettingsScreen extends StatelessWidget {
                 /**
                  * Edit Favourite Rooms button's container
                  */
+                
                 Container(
                   alignment: Alignment.bottomCenter,
                   child: FilledButton.tonal(
