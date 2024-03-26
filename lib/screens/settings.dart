@@ -22,18 +22,12 @@ class SettingsScreen extends StatelessWidget{
 
 ///TODO:
 ///
-///1. Add shadows to buttons --DONE--
-///     There is a possibility that the current way the buttons are set
-///     up wont work and that it needs to be reconsidered.
+///1. Add the account information "box"
 ///
-///2. Add toggle buttons above "edit favourite rooms" button
-///     These buttons should be in their own container as the background
-///     behind them is supposed to be a slightly different color
-///
-///3. Add the account information "box"
-///
-///4. Add missing images to buttons
+///2. Add missing images to buttons
 ///     Get these from figma
+/// 
+///3. Make the "Edit Favourite Rooms" button change scene
 class SettingsScreenContent extends StatelessWidget {
 
 
@@ -72,6 +66,17 @@ class SettingsScreenContent extends StatelessWidget {
               
               // Declare any children of the Column widget within the []
               children: [
+
+                /**
+                 * Account information container
+                 */
+                Container(
+                  child: Column(
+                    children: [
+                      //Add appropriate information here, crossreference with figma
+                    ],
+                  ),
+                ),
 
                 /**
                  * Switch buttons container
