@@ -10,9 +10,19 @@ import 'package:go_router/go_router.dart';
 
 
 
+class SettingsScreen extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+    return ChangeNotifierProvider(
+      create: (context) => SwitchStates(),
+      child: SettingsScreenContent(),
+      );
+  }
+}
+
 ///TODO:
 ///
-///1. Add shadows to buttons
+///1. Add shadows to buttons --DONE--
 ///     There is a possibility that the current way the buttons are set
 ///     up wont work and that it needs to be reconsidered.
 ///
@@ -24,13 +34,14 @@ import 'package:go_router/go_router.dart';
 ///
 ///4. Add missing images to buttons
 ///     Get these from figma
-class SettingsScreen extends StatelessWidget {
-  SettingsScreen({super.key});
-  bool notifications = false;
-  bool colorBlindMode = false;
+class SettingsScreenContent extends StatelessWidget {
+
 
   @override
   Widget build(BuildContext context){
+    var notifications = Provider.of<SwitchStates>(context).notifications;
+    var colorBlindMode = Provider.of<SwitchStates>(context).colorBlindMode;
+    
     return Scaffold(
       /**
        * The appbar of the page
@@ -71,7 +82,7 @@ class SettingsScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text(
+                          const Text(
                             'Enable Notifications:',
                             style: TextStyle(
                               fontSize: 18,
@@ -86,8 +97,8 @@ class SettingsScreen extends StatelessWidget {
                           Switch(
                             value: notifications, 
                             onChanged: (bool value) {
-                              notifications = value;
-                              print('Notifications');
+                              Provider.of<SwitchStates>(context, listen: false).setNotifications(value);    
+                              print('Notifications: $value');
                             }
                           ),
                         ]
@@ -97,7 +108,7 @@ class SettingsScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           
-                          Text(
+                          const Text(
                             'Enable Color Blind Mode:',
                             style: TextStyle(
                               fontSize: 18,
@@ -113,8 +124,8 @@ class SettingsScreen extends StatelessWidget {
                           Switch(
                             value: colorBlindMode, 
                             onChanged: (bool value) {
-                              colorBlindMode = value;
-                              print('ColorBlindMode');
+                              Provider.of<SwitchStates>(context, listen: false).setColorBlindMode(value);
+                              print('ColorBlindMode: $value');
                             }
                           ),
                         ],
@@ -129,17 +140,12 @@ class SettingsScreen extends StatelessWidget {
                 
                 Container(
                   alignment: Alignment.bottomCenter,
-                  child: FilledButton.tonal(
-                      style: FilledButton.styleFrom(
-                        shadowColor: Color.fromARGB(0, 83, 80, 80),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                        ),
-                      ),
+                  child: FloatingActionButton.extended(
+                      elevation: 2,
                       onPressed: () {
                         print('Edit Favourite Rooms Clicked!');
                       },
-                      child: const Text(
+                      label: const Text(
                         'Edit Favourite Rooms',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -162,17 +168,12 @@ class SettingsScreen extends StatelessWidget {
                    */
                   Container(
                     alignment: Alignment.bottomLeft,
-                    child: FilledButton.tonal(
-                      style: FilledButton.styleFrom(
-                          shadowColor: Color.fromARGB(0, 83, 80, 80),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                          ),
-                        ),
+                    child: FloatingActionButton.extended(
+                      elevation: 2,
                       onPressed: () {
                         print('View Rules Clicked!');
                       },
-                      child: const Text(
+                      label: const Text(
                         'View\nRules',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -188,19 +189,12 @@ class SettingsScreen extends StatelessWidget {
                    */
                   Container(
                     alignment: Alignment.bottomRight,
-                    child: FilledButton.tonal(
-                      style: FilledButton.styleFrom(
-                          shadowColor: Color.fromARGB(0, 83, 80, 80),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12)),
-                              
-                          ),
-                        ),
+                    child: FloatingActionButton.extended(
+                      elevation: 2,
                       onPressed: () {
                         print('Report an Issue Clicked!');
                       },
-
-                      child: const Text(
+                      label: const Text(
                         'Report an\nIssue',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -216,5 +210,23 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
     );
+  }
+}
+
+class SwitchStates extends ChangeNotifier {
+  bool _colorBlindMode = false;
+  bool get colorBlindMode => _colorBlindMode;
+
+  bool _notifications = false;
+  bool get notifications => _notifications;
+
+  void setColorBlindMode(bool value) {
+    _colorBlindMode = value;
+    notifyListeners();
+  }
+
+  void setNotifications(bool value) {
+    _notifications = value;
+    notifyListeners();
   }
 }
