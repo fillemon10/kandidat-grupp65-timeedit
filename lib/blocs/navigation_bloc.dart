@@ -1,9 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:go_router/go_router.dart';
 
-enum NavigationEvent { home, book, maps, settings }
+enum NavigationEvent { home, book, checkin, maps, settings }
 
-enum NavigationState { home, book, maps, settings }
+enum NavigationState { home, book, checkin, maps, settings }
 
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   NavigationBloc() : super(NavigationState.home) {
@@ -14,6 +13,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
           break;
         case NavigationEvent.book:
           emit(NavigationState.book);
+          break;
+        case NavigationEvent.checkin:
+          emit(NavigationState.checkin);
           break;
         case NavigationEvent.maps:
           emit(NavigationState.maps);

@@ -4,43 +4,41 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart'; // Import for date/time formatting
 import 'package:timeedit/models/booking.dart'; // Import the Booking class
 
-class BookingEvent extends StatefulWidget {
-  final Booking booking; // Add a property to store the booking
+class BookingEvent extends StatelessWidget {
+  final Booking booking;
+  final DateTime roomOpensAt;
+  final DateTime roomClosesAt;
 
-  const BookingEvent(this.booking, {Key? key}) : super(key: key);
-  @override
-  _BookingEventState createState() => _BookingEventState();
-}
+  const BookingEvent({
+    Key? key,
+    required this.booking,
+    required this.roomOpensAt,
+    required this.roomClosesAt,
+  }) : super(key: key);
 
-class _BookingEventState extends State<BookingEvent> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.hardEdge,
-      elevation: 1,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      margin: const EdgeInsets.symmetric(
-          vertical: 2.0, horizontal: 4.0), // Compact margins
-      child: InkWell(
-        child: SizedBox(
-          height: 40, // Reduced height
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(DateFormat('HH:mm')
-                    .format(widget.booking.startTime)), // Formatted
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(DateFormat('HH:mm')
-                    .format(widget.booking.endTime)), // Formatted
-              )
-            ],
-          ),
+    final eventWidth = _calculateEventWidth(context);
+    return Container(
+      width: eventWidth,
+      height: 50,
+      color: Colors.blue,
+      child: Center(
+        child: Text(
+          DateFormat.Hm().format(booking.startTime) +
+              '-' +
+              DateFormat.Hm().format(booking.endTime),
+          style: TextStyle(color: Colors.white),
         ),
       ),
     );
+  }
+
+  double _calculateEventWidth(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final totalDuration = booking.endTime.difference(booking.startTime);
+    final roomOpenDuration = roomClosesAt.difference(roomOpensAt);
+    return screenWidth *
+        (totalDuration.inMilliseconds / roomOpenDuration.inMilliseconds);
   }
 }

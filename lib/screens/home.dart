@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         children: [
           Text(FirebaseAuth.instance.currentUser != null
-              ? 'User ID: ${FirebaseAuth.instance.currentUser!.uid}'
+              ? 'Email: ${FirebaseAuth.instance.currentUser!.email}'
               : 'No user logged in'),
         ],
       ),
