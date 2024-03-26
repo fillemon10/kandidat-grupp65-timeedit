@@ -11,23 +11,29 @@ class SettingsScreen extends StatelessWidget {
         title: Text('Settings'),
       ),
       body: Center(
-        child: BlocBuilder<AuthenticationBloc, AuthState>(
-          builder: (context, authState) {
-            if (authState.isAuthenticated) {
-              return ElevatedButton(
-                onPressed: () => context
-                    .read<AuthenticationBloc>()
-                    .add(AuthEvent.signOutRequested),
-                child: Text('Sign out'),
-              );
-            } else {
-              return ElevatedButton(
-                onPressed: () => context.read<AuthenticationBloc>().add(
-                      AuthEvent.signInRequested,
-                    ),
-                child: Text('Sign in'),
-              );
-            }
+        child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (state == AuthenticationState.authenticated)
+                  ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(AuthenticationEvent.signOutRequested);
+                    },
+                    child: Text('Sign Out'),
+                  ),
+                if (state == AuthenticationState.unauthenticated)
+                  ElevatedButton(
+                    onPressed: () {
+                      GoRouter.of(context).go('/login');
+                    },
+                    child: Text('Sign In'),
+                  ),
+              ],
+            );
           },
         ),
       ),
