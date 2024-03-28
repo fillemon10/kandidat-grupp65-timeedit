@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timeedit/screens/maps.dart';
 
 class FirstCome extends StatelessWidget {
   @override
@@ -7,45 +8,48 @@ class FirstCome extends StatelessWidget {
       appBar: AppBar(
         title: Text('First-come-first-serve rooms'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'These rooms are free to use - no booking needed!',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20), // Add spacing between the title and accordions
-            AccordionWidget(
-              title: 'Maskin',
-              content: ['Room 1', 'Room 2', 'Room 3'], // Example content list
-              backgroundColor: Color(0xFFBFD5BC), // Set custom color
-            ),
-            SizedBox(height: 16), // Add spacing between accordion items
-            AccordionWidget(
-              title: 'Kemi',
-              content: ['Room 4', 'Room 5', 'Room 6'], // Example content list
-              backgroundColor: Color(0xFFBFD5BC), // Set custom color
-            ),
-            SizedBox(height: 16), // Add spacing between accordion items
-            AccordionWidget(
-              title: 'Fysik',
-              content: ['Room 7', 'Room 8', 'Room 9'], // Example content list
-              backgroundColor: Color(0xFFBFD5BC), // Set custom color
-            ),
-            SizedBox(height: 16), // Add spacing between accordion items
-            AccordionWidget(
-              title: 'SB',
-              content: ['Room 10', 'Room 11', 'Room 12'], // Example content list
-              backgroundColor: Color(0xFFBFD5BC), // Set custom color
-            ),
-          ],
+      body: SingleChildScrollView( // Wrap the Column with SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'These rooms are free to use - no booking needed!',
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 20), // Add spacing between the title and accordions
+              AccordionWidget(
+                title: 'Maskin',
+                content: ['Room 1', 'Room 2', 'Room 3'], // Example content list
+                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              ),
+              SizedBox(height: 16), // Add spacing between accordion items
+              AccordionWidget(
+                title: 'Kemi',
+                content: ['Room 4', 'Room 5', 'Room 6'], // Example content list
+                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              ),
+              SizedBox(height: 16), // Add spacing between accordion items
+              AccordionWidget(
+                title: 'Fysik',
+                content: ['Room 7', 'Room 8', 'Room 9'], // Example content list
+                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              ),
+              SizedBox(height: 16), // Add spacing between accordion items
+              AccordionWidget(
+                title: 'SB',
+                content: ['Room 10', 'Room 11', 'Room 12'], // Example content list
+                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 class AccordionWidget extends StatefulWidget {
   final String title;
@@ -173,13 +177,14 @@ class CustomDialog extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Add action for Get Directions button here
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
-                      ),
-                      child: Text('Get Directions?'),
+                      // Navigate to the maps screen when Get Directions button is pressed
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapsScreen()));
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
                     ),
+                    child: Text('Get Directions?'),
+                  ),
                     OutlinedButton(
                       onPressed: onClose,
                       style: OutlinedButton.styleFrom(
