@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:timeedit/screens/mybookings.dart';
+import 'package:timeedit/screens/firstcome.dart';
+import 'package:timeedit/screens/favourites.dart';
+
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -7,14 +11,70 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: ListView(
-        children: const [
-          TitleSection(
-            title: 'Looking for a room right now?',
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ListView(
+              children: const [
+                TitleSection(
+                  title: 'Looking for a room right now?',
+                ),
+                CardSection(
+                  title: 'Book a room',
+                  subtitle: 'Find and book a room now',
+                ),
+              ],
+            ),
           ),
-          CardSection(
-            title: 'Book a room',
-            subtitle: 'Find and book a room now',
+                    Padding(
+            padding: const EdgeInsets.only(bottom: 40), // Adjust the amount of padding to move the buttons higher
+            child: Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyBookings()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                    ),
+                    child: Text('My Bookings'),
+                  ),
+                  SizedBox(height: 12), // Add spacing
+                  ElevatedButton(
+                    onPressed: () {
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FirstCome()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                    ),
+                    child: Text('First-come-first-served rooms'),
+                  ),
+                  SizedBox(height: 12), // Add spacing
+                  ElevatedButton(
+                    onPressed: () {
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Favourites()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                    ),
+                    child: Text('My favourite rooms'),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -97,14 +157,14 @@ class DataTableExample extends StatelessWidget {
         DataColumn(
           label: Expanded(
             child: Text(
-              'Time',
+              'House',
             ),
           ),
         ),
         DataColumn(
           label: Expanded(
             child: Text(
-              'Extra',
+              'Available until',
             ),
           ),
         ),
