@@ -101,9 +101,22 @@ class _AccordionWidgetState extends State<AccordionWidget> {
                       child: Container(
                         color: entry.key.isOdd ? Color(0xFFD9D9D9) : Color(0xFFEFECE7),
                         child: ListTile(
-                          title: Text(
-                            entry.value,
-                            style: TextStyle(color: Colors.black), // Set text color to black
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  entry.value,
+                                  style: TextStyle(color: Colors.black), // Set text color to black
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.map),
+                                onPressed: () {
+                                  // Navigate to the maps screen when map icon is pressed
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapsScreen()));
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -131,6 +144,7 @@ class _AccordionWidgetState extends State<AccordionWidget> {
     );
   }
 }
+
 
 class CustomDialog extends StatelessWidget {
   final String roomName;
