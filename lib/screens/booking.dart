@@ -97,9 +97,6 @@ class _BuildingTableState extends State<BuildingTable> {
                     BookingRow(
                       room: room,
                       bookings: widget.bookingsByRoom[room.name] ?? [],
-                      // 08:00 to 18:00
-                      roomOpensAt: DateTime(2021, 1, 1, 8),
-                      roomClosesAt: DateTime(2021, 1, 1, 18)
                     ),
                   ]
                 ],

@@ -28,7 +28,7 @@ class SettingsScreen extends StatelessWidget {
                 if (state == AuthenticationState.unauthenticated)
                   ElevatedButton(
                     onPressed: () {
-                      GoRouter.of(context).go('/login');
+                      GoRouter.of(context).go('/sign-in');
                     },
                     child: Text('Sign In'),
                   ),

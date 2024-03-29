@@ -42,6 +42,7 @@ class ScaffoldWithNavbar extends StatelessWidget {
             selectedIcon: Icon(Icons.qr_code),
             icon: Icon(Icons.qr_code_scanner_outlined),
             label: 'Check-in',
+            enabled: true,
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.map),
