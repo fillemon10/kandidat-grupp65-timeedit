@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/blocs/booking_bloc.dart';
 import 'package:timeedit/screens/booking.dart';
+import 'package:timeedit/widgets/filter_drawer.dart';
 
 class BookingTabBar extends StatefulWidget {
   final DateTime today;
@@ -32,6 +34,7 @@ class _BookingTabBarState extends State<BookingTabBar>
       vsync: this,
     );
     _tabController.addListener(_onTabChanged);
+    context.read<BookingBloc>().add(FetchBookingData(_selectedDate));
   }
 
   @override
@@ -74,14 +77,25 @@ class _BookingTabBarState extends State<BookingTabBar>
     }
   }
 
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        elevation: 1,
+        onPressed: () {
+          // Navigate to the selected page
+          context.push('/new-booking');
+        },
+        label: const Text('New'),
+        icon: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Book'),
+        title: const Text('Booking'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.calendar_month_outlined),
@@ -96,6 +110,11 @@ class _BookingTabBarState extends State<BookingTabBar>
               _onDatePicked(picked);
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.filter_alt_outlined),
+            onPressed: () =>
+                _key.currentState!.openDrawer(), // <-- Opens drawer
+          )
         ],
       ),
       body: Column(
@@ -120,6 +139,10 @@ class _BookingTabBarState extends State<BookingTabBar>
             ),
           ),
         ],
+      ),
+      key: _key,
+      drawer: Drawer(
+        child: FilterDrawer(),
       ),
     );
   }

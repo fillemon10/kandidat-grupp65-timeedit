@@ -72,6 +72,8 @@ class BuildingTable extends StatefulWidget {
 }
 
 class _BuildingTableState extends State<BuildingTable> {
+  final ScrollController _sharedController = ScrollController(); // Define here
+
   bool _isExpanded = true;
 
   @override
@@ -97,6 +99,8 @@ class _BuildingTableState extends State<BuildingTable> {
                     BookingRow(
                       room: room,
                       bookings: widget.bookingsByRoom[room.name] ?? [],
+                      scrollController:
+                          _sharedController, // Pass the controller here
                     ),
                   ]
                 ],
