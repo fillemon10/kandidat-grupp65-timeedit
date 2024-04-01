@@ -35,26 +35,30 @@ class FavouriteRoomsScreen extends StatelessWidget {
         centerTitle: true,
         
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        itemCount: exampleRoomsList.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(
-                exampleRoomsList[index]),
-                titleTextStyle: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400
-                ),
-            onTap: () {
-              _showRoomDetails(context, exampleRoomsList[index]);
-            },
-            ),
-            
-          );
-        }
+      body: Scrollbar(
+        thickness: 7,
+        radius: Radius.circular(10),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          itemCount: exampleRoomsList.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                title: Text(
+                  exampleRoomsList[index]),
+                  titleTextStyle: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400
+                  ),
+              onTap: () {
+                _showRoomDetails(context, exampleRoomsList[index]);
+              },
+              ),
+              
+            );
+          }
+        )
       )
     );
   }
@@ -67,22 +71,119 @@ class FavouriteRoomsScreen extends StatelessWidget {
           /**
            * The padding needs to be adjusted so that it fits all screens
            */
-          insetPadding: const EdgeInsets.symmetric(vertical: 200),
+          insetPadding: const EdgeInsets.symmetric(vertical: 150),
           title: Center(child: Text('Room: $roomName')),
           content: Container(
             alignment: Alignment.center,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('Detail 1 about room $roomName'),
+                /**
+                 * Add card contents here
+                 */
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Text(
+                    'House: ...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300
+                    )
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Text(
+                    'Size: ...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300
+                      ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Text('Amenities: ...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300
+                      ),    
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Text('Shared: ...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300
+                      ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Text('Is favourite: ...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300
+                      ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: FloatingActionButton.extended(
+                    onPressed: () {
+                      print('Added/Removed room as favourite');
+                    }, 
+                    label: const Text(
+                      'Add/Remove as Favourite',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300
+                      ),
+                    )
+                  ),
+                ),
               ],
             ),
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Close'),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              child: FloatingActionButton.extended(
+                onPressed: (){
+                  print('Book the room pressed!');
+                }, 
+                label : const Text(
+                  'Book the room',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300
+                  ),
+                )
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                label: const Text(
+                  'Close',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300
+                  ),
+                ),
+              ),
             ),
           ],
         );
