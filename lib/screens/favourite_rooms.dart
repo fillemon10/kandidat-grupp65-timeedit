@@ -49,13 +49,44 @@ class FavouriteRoomsScreen extends StatelessWidget {
                   fontWeight: FontWeight.w400
                 ),
             onTap: () {
-              print('Selected room: ${exampleRoomsList[index]}');
+              _showRoomDetails(context, exampleRoomsList[index]);
             },
             ),
             
           );
         }
       )
+    );
+  }
+
+  void _showRoomDetails(BuildContext context, String roomName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          /**
+           * The padding needs to be adjusted so that it fits all screens
+           */
+          insetPadding: const EdgeInsets.symmetric(vertical: 200),
+          title: Center(child: Text('Room: $roomName')),
+          content: Container(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Text('Detail 1 about room $roomName'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
