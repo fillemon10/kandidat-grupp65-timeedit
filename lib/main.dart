@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/book.dart';
 import 'package:timeedit/screens/checkin.dart';
+import 'package:timeedit/screens/favourite_rooms.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/settings.dart';
@@ -140,6 +141,11 @@ final GoRouter _router = GoRouter(
           ],
         );
       },
+    ),
+    GoRoute(
+      path: '/favourite_rooms',
+      builder: (context, state) => FavouriteRoomsScreen()
+      
     ),
   ],
 );

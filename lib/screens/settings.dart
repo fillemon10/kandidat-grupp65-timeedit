@@ -51,7 +51,7 @@ class SettingsScreenContent extends StatelessWidget {
        * The main container for all widgets in the settings page
        */
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         alignment: Alignment.center,
         width: double.infinity,
         height: double.infinity,
@@ -73,7 +73,54 @@ class SettingsScreenContent extends StatelessWidget {
                 Container(
                   child: Column(
                     children: [
-                      //Add appropriate information here, crossreference with figma
+                      
+                      /**
+                       * Container for the 'account details' textbox at the top of the screen
+                       */
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFBFD5BC),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: const Text(
+                          'Account Details',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300
+                          )
+                        )
+                      ),
+                      
+                      /**
+                       * Container for the CID text
+                       * 
+                       * TODO, need to add so that the CID is gotten from the login
+                       */
+                      Container(
+                        child: const Text(
+                          'CID: to-be added in the future',
+                          style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w300
+                          )
+                        )
+                      ),
+
+                      /**
+                       * Container for the Account Type Text
+                       * 
+                       * TODO, need to add so that the account type is gottent from the login
+                       */
+                      Container(
+                        child: const Text(
+                          'Account Type: to-be added in the future',
+                          style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w300
+                          )
+                        )
+                      ),
+                    
                     ],
                   ),
                 ),
@@ -146,9 +193,11 @@ class SettingsScreenContent extends StatelessWidget {
                 Container(
                   alignment: Alignment.bottomCenter,
                   child: FloatingActionButton.extended(
+                      heroTag: 'editFavouriteRoomsButton',
                       elevation: 2,
                       onPressed: () {
-                        print('Edit Favourite Rooms Clicked!');
+                        context.push('/favourite_rooms');
+                        //print('Edit Favourite Rooms Clicked!');
                       },
                       label: const Text(
                         'Edit Favourite Rooms',
@@ -174,6 +223,7 @@ class SettingsScreenContent extends StatelessWidget {
                   Container(
                     alignment: Alignment.bottomLeft,
                     child: FloatingActionButton.extended(
+                      heroTag: 'viewRulesButton',
                       elevation: 2,
                       onPressed: () {
                         print('View Rules Clicked!');
@@ -195,6 +245,7 @@ class SettingsScreenContent extends StatelessWidget {
                   Container(
                     alignment: Alignment.bottomRight,
                     child: FloatingActionButton.extended(
+                      heroTag: 'reportAnIssueButton',
                       elevation: 2,
                       onPressed: () {
                         print('Report an Issue Clicked!');
