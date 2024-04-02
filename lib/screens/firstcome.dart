@@ -42,24 +42,29 @@ class FirstComeScreen extends StatelessWidget {
                   });
                   return Column(
                     children: roomsByBuilding.entries.map((entry) {
-                      final buildingName = entry.key;
-                      final buildingRooms = entry.value;
-                      return AccordionWidget(
-                        title: buildingName,
-                        content: buildingRooms.map((doc) {
-                          final roomData = doc.data() as Map<String, dynamic>;
-                          final bool isBookable = roomData['bookable'];
-                          if (!isBookable) {
-                            return roomData['name'];
-                          } else {
-                            return null; // Don't include bookable rooms
-                          }
-                        }).where((room) => room != null).toList().cast<String>(),
-                        backgroundColor: Colors.green, // You can set your own color here
-                        buildingRooms: buildingRooms, // Pass buildingRooms to AccordionWidget
-                      );
-                    }).toList(),
-                  );
+                    final buildingName = entry.key;
+                    final buildingRooms = entry.value;
+                    return Column(
+                      children: [
+                        SizedBox(height: 10), // Add space between each AccordionWidget
+                        AccordionWidget(
+                          title: buildingName,
+                          content: buildingRooms.map((doc) {
+                            final roomData = doc.data() as Map<String, dynamic>;
+                            final bool isBookable = roomData['bookable'];
+                            if (!isBookable) {
+                              return roomData['name'];
+                            } else {
+                              return null; // Don't include bookable rooms
+                            }
+                          }).where((room) => room != null).toList().cast<String>(),
+                          backgroundColor: Color(0xFFBFD5BC), // You can set your own color here
+                          buildingRooms: buildingRooms, // Pass buildingRooms to AccordionWidget
+                        ),
+                      ],
+                    );
+                 }).toList(),
+                );
                 },
               ),
             ],
