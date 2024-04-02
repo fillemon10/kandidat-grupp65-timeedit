@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:timeedit/screens/maps.dart';
 
-class FirstCome extends StatelessWidget {
+class FirstComeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('First-come-first-serve rooms'),
       ),
-      body: SingleChildScrollView( // Wrap the Column with SingleChildScrollView
+      body: SingleChildScrollView(
+        // Wrap the Column with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -18,7 +19,8 @@ class FirstCome extends StatelessWidget {
                 'These rooms are free to use - no booking needed!',
                 style: TextStyle(fontSize: 18),
               ),
-              SizedBox(height: 20), // Add spacing between the title and accordions
+              SizedBox(
+                  height: 20), // Add spacing between the title and accordions
               AccordionWidget(
                 title: 'Maskin',
                 content: ['Room 1', 'Room 2', 'Room 3'], // Example content list
@@ -39,7 +41,11 @@ class FirstCome extends StatelessWidget {
               SizedBox(height: 16), // Add spacing between accordion items
               AccordionWidget(
                 title: 'SB',
-                content: ['Room 10', 'Room 11', 'Room 12'], // Example content list
+                content: [
+                  'Room 10',
+                  'Room 11',
+                  'Room 12'
+                ], // Example content list
                 backgroundColor: Color(0xFFBFD5BC), // Set custom color
               ),
             ],
@@ -50,13 +56,15 @@ class FirstCome extends StatelessWidget {
   }
 }
 
-
 class AccordionWidget extends StatefulWidget {
   final String title;
   final List<String> content;
   final Color backgroundColor; // Background color
 
-  AccordionWidget({required this.title, required this.content, required this.backgroundColor});
+  AccordionWidget(
+      {required this.title,
+      required this.content,
+      required this.backgroundColor});
 
   @override
   _AccordionWidgetState createState() => _AccordionWidgetState();
@@ -99,21 +107,26 @@ class _AccordionWidgetState extends State<AccordionWidget> {
                         _showRoomInfoDialog(context, entry.value);
                       },
                       child: Container(
-                        color: entry.key.isOdd ? Color(0xFFD9D9D9) : Color(0xFFEFECE7),
+                        color: entry.key.isOdd
+                            ? Color(0xFFD9D9D9)
+                            : Color(0xFFEFECE7),
                         child: ListTile(
                           title: Row(
                             children: [
                               Expanded(
                                 child: Text(
                                   entry.value,
-                                  style: TextStyle(color: Colors.black), // Set text color to black
+                                  style: TextStyle(
+                                      color: Colors
+                                          .black), // Set text color to black
                                 ),
                               ),
                               IconButton(
                                 icon: Icon(Icons.map),
                                 onPressed: () {
                                   // Navigate to the maps screen when map icon is pressed
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapsScreen()));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => MapsScreen()));
                                 },
                               ),
                             ],
@@ -145,12 +158,12 @@ class _AccordionWidgetState extends State<AccordionWidget> {
   }
 }
 
-
 class CustomDialog extends StatelessWidget {
   final String roomName;
   final VoidCallback onClose;
 
-  const CustomDialog({Key? key, required this.roomName, required this.onClose}) : super(key: key);
+  const CustomDialog({Key? key, required this.roomName, required this.onClose})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +180,10 @@ class CustomDialog extends StatelessWidget {
               children: [
                 Text(
                   roomName,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
                 IconButton(
                   icon: Icon(Icons.close),
@@ -191,18 +207,21 @@ class CustomDialog extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                      // Navigate to the maps screen when Get Directions button is pressed
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => MapsScreen()));
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
+                        // Navigate to the maps screen when Get Directions button is pressed
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => MapsScreen()));
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color(0xFFBFD5BC)), // Set background color
+                      ),
+                      child: Text('Get Directions?'),
                     ),
-                    child: Text('Get Directions?'),
-                  ),
                     OutlinedButton(
                       onPressed: onClose,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Color(0xFFEFECEC)), // Set border color
+                        side: BorderSide(
+                            color: Color(0xFFEFECEC)), // Set border color
                       ),
                       child: Text('Close'),
                     ),
@@ -232,6 +251,3 @@ class CustomDialog extends StatelessWidget {
     );
   }
 }
-
-
-
