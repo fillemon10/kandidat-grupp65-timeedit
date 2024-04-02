@@ -55,7 +55,8 @@ class FirstComeScreen extends StatelessWidget {
                             return null; // Don't include bookable rooms
                           }
                         }).where((room) => room != null).toList().cast<String>(),
-                        backgroundColor: Colors.grey, // You can set your own color here
+                        backgroundColor: Colors.green, // You can set your own color here
+                        buildingRooms: buildingRooms, // Pass buildingRooms to AccordionWidget
                       );
                     }).toList(),
                   );
@@ -69,16 +70,18 @@ class FirstComeScreen extends StatelessWidget {
   }
 }
 
-
 class AccordionWidget extends StatefulWidget {
   final String title;
   final List<String> content;
   final Color backgroundColor; // Background color
+  final List<DocumentSnapshot> buildingRooms; // Add buildingRooms
 
-  AccordionWidget(
-      {required this.title,
-      required this.content,
-      required this.backgroundColor});
+  AccordionWidget({
+    required this.title,
+    required this.content,
+    required this.backgroundColor,
+    required this.buildingRooms, // Receive buildingRooms
+  });
 
   @override
   _AccordionWidgetState createState() => _AccordionWidgetState();
@@ -118,7 +121,7 @@ class _AccordionWidgetState extends State<AccordionWidget> {
                   .map(
                     (entry) => GestureDetector(
                       onTap: () {
-                        _showRoomInfoDialog(context, entry.value);
+                        _showRoomInfoDialog(context, entry.value, widget.buildingRooms); // Pass buildingRooms
                       },
                       child: Container(
                         color: entry.key.isOdd
@@ -157,12 +160,13 @@ class _AccordionWidgetState extends State<AccordionWidget> {
     );
   }
 
-  void _showRoomInfoDialog(BuildContext context, String roomName) {
+  void _showRoomInfoDialog(BuildContext context, String roomName, List<DocumentSnapshot> buildingRooms) {
+    final roomSnapshot = buildingRooms.firstWhere((doc) => doc['name'] == roomName);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
-          roomName: roomName,
+          roomSnapshot: roomSnapshot,
           onClose: () {
             Navigator.of(context).pop();
           },
@@ -172,15 +176,22 @@ class _AccordionWidgetState extends State<AccordionWidget> {
   }
 }
 
+
 class CustomDialog extends StatelessWidget {
-  final String roomName;
+  final DocumentSnapshot roomSnapshot;
   final VoidCallback onClose;
 
-  const CustomDialog({Key? key, required this.roomName, required this.onClose})
+  const CustomDialog({Key? key, required this.roomSnapshot, required this.onClose})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final roomData = roomSnapshot.data() as Map<String, dynamic>;
+
+    // Convert floor and size to strings
+    final String floor = roomData['floor'].toString();
+    final String size = roomData['size'].toString();
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       backgroundColor: Color(0xFFF0F0F0), // Set background color to F0F0F0
@@ -193,7 +204,7 @@ class CustomDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  roomName,
+                  roomData['name'],
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -212,9 +223,9 @@ class CustomDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('House:', 'Sample House'),
-                _buildInfoRow('Size:', 'Sample Size'),
-                _buildInfoRow('Amenities:', 'Sample Amenities'),
+                _buildInfoRow('Building:', roomData['building']),
+                _buildInfoRow('Floor:', floor), // Use converted floor value
+                _buildInfoRow('Size:', size), // Use converted size value
                 SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
