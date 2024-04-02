@@ -28,9 +28,12 @@ class FirebaseService {
     try {
       log('groupRoomsByBuilding: Fetching rooms from Firestore');
 
-      // Fetch rooms from Firestore
-      final snapshot =
-          await FirebaseFirestore.instance.collection('rooms').get();
+      // Fetch rooms from Firestore (with bookable filter)
+      final snapshot = await FirebaseFirestore.instance
+          .collection('rooms')
+          .where('bookable', isEqualTo: true)
+          .get();
+
       final rooms = snapshot.docs
           .map((doc) => Room.fromMap(doc.data() as Map<String, dynamic>))
           .toList();

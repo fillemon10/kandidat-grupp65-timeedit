@@ -4,8 +4,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:timeedit/blocs/authentication_bloc.dart';
 
 class MapsScreen extends StatelessWidget {
   @override
@@ -14,83 +16,33 @@ class MapsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Maps'),
       ),
-      body: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  TransformationController _controller = TransformationController();
-  double _currentScale = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onZoomChange);
-  }
-
-  void _onZoomChange() {
-    setState(() {
-      _currentScale = _controller.value.getMaxScaleOnAxis();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Vertical Zoom Demo')),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            children: [
-              // Margin Labels
-              Container(
-                height: 40,
-                child: Row(
-                  children: [
-                    for (int i = 1; i <= 11; i++)
-                      Expanded(
-                        // Wrap each number in Expanded
-                        child: Center(
-                          child: Text(
-                            '$i',
-                            style: TextStyle(
-                              fontSize: 12 * _currentScale,
-                              // Adjust the font size based on scale
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: InteractiveViewer(
-                  panEnabled: false,
-                  transformationController: _controller,
-                  boundaryMargin: EdgeInsets.all(100),
-                  minScale: 0.1,
-                  maxScale: 1.6,
-                  child: Image.network(
-                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+      body: Center(
+        child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (state == AuthenticationState.authenticated)
+                  ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(AuthenticationEvent.signOutRequested);
+                    },
+                    child: Text('Sign Out'),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
+                if (state == AuthenticationState.unauthenticated)
+                  ElevatedButton(
+                    onPressed: () {
+                      GoRouter.of(context).go('/sign-in');
+                    },
+                    child: Text('Sign In'),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_onZoomChange);
-    super.dispose();
   }
 }

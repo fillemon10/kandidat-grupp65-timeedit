@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
@@ -71,16 +72,6 @@ class _BookingRowState extends State<BookingRow> {
     );
   }
 
-  Widget _buildTimeSlot(int index) {
-    DateTime slotStart =
-        _dayStart.add(Duration(minutes: index * _timeSlotInterval));
-    String formattedHour = DateFormat('HH').format(slotStart);
-    return SizedBox(
-      width: _timeSlotWidth,
-      child: Text(formattedHour),
-    );
-  }
-
   Widget _buildTimeSlotWidget(int index) {
     DateTime slotStart =
         _dayStart.add(Duration(minutes: index * _timeSlotInterval));
@@ -123,7 +114,7 @@ class _BookingRowState extends State<BookingRow> {
 
     if (slotStart.isAfter(_dayStart.subtract(const Duration(minutes: 1))) &&
         slotStart.isBefore(_dayEnd)) {
-      log('Time slot tapped: ${DateFormat.Hm().format(slotStart)}');
+        context.push("/new-booking/${widget.room.name}/${DateFormat('HH:mm').format(slotStart)}");
     } else {
       log('Time slot outside allowed range');
     }

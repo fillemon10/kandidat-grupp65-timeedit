@@ -88,7 +88,7 @@ class _BookingTabBarState extends State<BookingTabBar>
         elevation: 1,
         onPressed: () {
           // Navigate to the selected page
-          context.push('/new-booking');
+          context.push('/new-booking/false/false');
         },
         label: const Text('New'),
         icon: const Icon(Icons.add),
