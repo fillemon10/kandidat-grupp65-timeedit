@@ -26,8 +26,6 @@ class FirebaseService {
 
   static Future<Map<String, List<Room>>> groupRoomsByBuilding() async {
     try {
-      log('groupRoomsByBuilding: Fetching rooms from Firestore');
-
       // Fetch rooms from Firestore (with bookable filter)
       final snapshot = await FirebaseFirestore.instance
           .collection('rooms')

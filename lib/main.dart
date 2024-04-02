@@ -8,8 +8,11 @@ import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/checkin.dart';
 import 'package:timeedit/screens/favourite_rooms.dart';
+import 'package:timeedit/screens/favourites.dart';
+import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
+import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/new-booking.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/services/firebase_service.dart';
@@ -95,8 +98,9 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
         path: '/new-booking/:room/:time',
-        builder: (context, state) =>
-            NewBookingScreen(room: state.pathParameters['room'].toString(), time: state.pathParameters['time'].toString())),
+        builder: (context, state) => NewBookingScreen(
+            room: state.pathParameters['room'].toString(),
+            time: state.pathParameters['time'].toString())),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {
@@ -163,10 +167,13 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/favourite_rooms',
-      builder: (context, state) => FavouriteRoomsScreen()
-      
-    ),
+        path: '/favourite_rooms',
+        builder: (context, state) => FavouritesScreen()),
+    GoRoute(
+        path: '/first-come-first-served',
+        builder: (context, state) => FirstComeScreen()),
+    GoRoute(
+        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()),
   ],
 );
 

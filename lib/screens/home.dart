@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/favourites.dart';
@@ -38,10 +39,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyBookings()),
-                      );
+                      context.push('/my-bookings');
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -52,10 +50,7 @@ class HomeScreen extends StatelessWidget {
                   SizedBox(height: 12), // Add spacing
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => FirstCome()),
-                      );
+                      context.push('/first-come-first-served');
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
@@ -66,10 +61,7 @@ class HomeScreen extends StatelessWidget {
                   SizedBox(height: 12), // Add spacing
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Favourites()),
-                      );
+                      context.push('/favourite_rooms');
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-
-class MyBookings extends StatelessWidget {
+class MyBookingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

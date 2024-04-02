@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Favourites extends StatelessWidget {
+class FavouritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +32,8 @@ class RoomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity, // Set button width to match the width of the ListView
+      width: double
+          .infinity, // Set button width to match the width of the ListView
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ElevatedButton(
@@ -43,7 +44,8 @@ class RoomButton extends StatelessWidget {
               builder: (BuildContext context) {
                 return FavouriteRoomDialog(
                   roomName: roomName,
-                  isShared: true, // Set the shared status according to your logic
+                  isShared:
+                      true, // Set the shared status according to your logic
                   onClose: () {
                     Navigator.of(context).pop(); // Close the modal panel
                   },
@@ -90,7 +92,12 @@ class FavouriteRoomDialog extends StatelessWidget {
   final bool isShared;
   final VoidCallback onClose;
 
-  const FavouriteRoomDialog({Key? key, required this.roomName, required this.isShared, required this.onClose}) : super(key: key);
+  const FavouriteRoomDialog(
+      {Key? key,
+      required this.roomName,
+      required this.isShared,
+      required this.onClose})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +114,10 @@ class FavouriteRoomDialog extends StatelessWidget {
               children: [
                 Text(
                   roomName,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
                 IconButton(
                   icon: Icon(Icons.close),
@@ -125,8 +135,10 @@ class FavouriteRoomDialog extends StatelessWidget {
                 _buildInfoRow('House:', 'Sample House'),
                 _buildInfoRow('Size:', 'Sample Size'),
                 _buildInfoRow('Amenities:', 'Sample Amenities'),
-                _buildInfoRow('Shared:', isShared ? 'Yes' : 'No'), // Display shared status
-                _buildInfoRow('Favorite room:', ''), // Add row for favorite room
+                _buildInfoRow('Shared:',
+                    isShared ? 'Yes' : 'No'), // Display shared status
+                _buildInfoRow(
+                    'Favorite room:', ''), // Add row for favorite room
                 SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,14 +148,16 @@ class FavouriteRoomDialog extends StatelessWidget {
                         // Add your logic for "See available slots" here
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
+                        backgroundColor: MaterialStateProperty.all(
+                            Color(0xFFBFD5BC)), // Set background color
                       ),
                       child: Text('See available slots'),
                     ),
                     OutlinedButton(
                       onPressed: onClose,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Color(0xFFEFECEC)), // Set border color
+                        side: BorderSide(
+                            color: Color(0xFFEFECEC)), // Set border color
                       ),
                       child: Text('Close'),
                     ),
