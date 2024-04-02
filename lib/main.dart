@@ -7,6 +7,7 @@ import 'package:timeedit/blocs/navigation_bloc.dart';
 import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/checkin.dart';
+import 'package:timeedit/screens/favourite_rooms.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/new-booking.dart';
@@ -160,6 +161,11 @@ final GoRouter _router = GoRouter(
           ],
         );
       },
+    ),
+    GoRoute(
+      path: '/favourite_rooms',
+      builder: (context, state) => FavouriteRoomsScreen()
+      
     ),
   ],
 );
