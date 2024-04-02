@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/firstcome.dart';
@@ -92,20 +93,11 @@ class TitleSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Row(
+      body: ListView(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Text(FirebaseAuth.instance.currentUser != null
+              ? 'Email: ${FirebaseAuth.instance.currentUser!.email}'
+              : 'No user logged in'),
         ],
       ),
     );
@@ -195,3 +187,4 @@ class DataTableExample extends StatelessWidget {
     );
   }
 }
+

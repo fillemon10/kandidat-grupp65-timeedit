@@ -10,15 +10,6 @@ class ScaffoldWithNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 1,
-        onPressed: () {
-          // Navigate to the selected page
-          context.push('/checkin');
-        },
-        label: const Text('Check-in'),
-        icon: const Icon(Icons.qr_code_scanner_outlined),
-      ),
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -37,6 +28,12 @@ class ScaffoldWithNavbar extends StatelessWidget {
             selectedIcon: Icon(Icons.calendar_today),
             icon: Icon(Icons.calendar_today_outlined),
             label: 'Book',
+          ),
+          NavigationDestination (
+            selectedIcon: Icon(Icons.qr_code),
+            icon: Icon(Icons.qr_code_scanner_outlined),
+            label: 'Check-in',
+            enabled: true,
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.map),
