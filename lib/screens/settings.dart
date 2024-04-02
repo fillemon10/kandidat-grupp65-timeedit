@@ -74,8 +74,9 @@ class SettingsScreenContent extends StatelessWidget {
                        * Container for the 'account details' textbox at the top of the screen
                        */
                       Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Color(0xFFBFD5BC),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: const Text(
@@ -192,7 +193,7 @@ class SettingsScreenContent extends StatelessWidget {
                       heroTag: 'editFavouriteRoomsButton',
                       elevation: 2,
                       onPressed: () {
-                        context.push('/favourite_rooms');
+                        context.push('/favourites');
                         //print('Edit Favourite Rooms Clicked!');
                       },
                       label: const Text(
