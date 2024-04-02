@@ -4,7 +4,6 @@ import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/favourites.dart';
 
-
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -28,8 +27,10 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-                    Padding(
-            padding: const EdgeInsets.only(bottom: 40), // Adjust the amount of padding to move the buttons higher
+          Padding(
+            padding: const EdgeInsets.only(
+                bottom:
+                    40), // Adjust the amount of padding to move the buttons higher
             child: Container(
               padding: EdgeInsets.all(16),
               child: Column(
@@ -43,33 +44,36 @@ class HomeScreen extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16), // Adjust button height
                     ),
                     child: Text('My Bookings'),
                   ),
                   SizedBox(height: 12), // Add spacing
                   ElevatedButton(
                     onPressed: () {
-                       Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => FirstCome()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16), // Adjust button height
                     ),
                     child: Text('First-come-first-served rooms'),
                   ),
                   SizedBox(height: 12), // Add spacing
                   ElevatedButton(
                     onPressed: () {
-                       Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => Favourites()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16), // Adjust button height
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16), // Adjust button height
                     ),
                     child: Text('My favourite rooms'),
                   ),
@@ -91,14 +95,10 @@ class TitleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-      child: Row(
-      body: ListView(
-        children: [
-          Text(FirebaseAuth.instance.currentUser != null
-              ? 'Email: ${FirebaseAuth.instance.currentUser!.email}'
-              : 'No user logged in'),
-        ],
+      padding: const EdgeInsets.all(8),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }
@@ -187,4 +187,3 @@ class DataTableExample extends StatelessWidget {
     );
   }
 }
-
