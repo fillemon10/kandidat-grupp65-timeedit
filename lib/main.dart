@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:timeedit/blocs/authentication_bloc.dart';
+import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:timeedit/blocs/navigation_bloc.dart';
 import 'package:timeedit/screens/after-checkin.dart';
-import 'package:timeedit/screens/book.dart';
+import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/checkin.dart';
 import 'package:timeedit/screens/favourite_rooms.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
+import 'package:timeedit/screens/new-booking.dart';
 import 'package:timeedit/screens/settings.dart';
+import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
 import 'package:timeedit/screens/filter.dart';
-import 'app_state.dart';
-import 'package:provider/provider.dart'; // new
 import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(ChangeNotifierProvider(
-    create: (context) => ApplicationState(),
-    builder: ((context, child) => const MyApp()),
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure widgets are initialized
+  await FirebaseService.initialize(); // Initialize Firebase first
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider<NavigationBloc>(create: (context) => NavigationBloc()),
+      BlocProvider<AuthenticationBloc>(
+          create: (context) => AuthenticationBloc()),
+      BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
+    ],
+    child: const MyApp(),
   ));
 }
 
@@ -45,8 +55,14 @@ final GoRouter _router = GoRouter(
         ),
         StatefulShellBranch(routes: <RouteBase>[
           GoRoute(
-            path: '/book',
-            builder: (context, state) => BookScreen(),
+            path: '/booking',
+            builder: (context, state) => BookingScreen(),
+          ),
+        ]),
+        StatefulShellBranch(routes: <RouteBase>[
+          GoRoute(
+            path: '/checkin',
+            builder: (context, state) => CheckInScreen(),
           ),
         ]),
         StatefulShellBranch(routes: <RouteBase>[
@@ -77,6 +93,10 @@ final GoRouter _router = GoRouter(
         return FilterScreen();
       },
     ),
+    GoRoute(
+        path: '/new-booking/:room/:time',
+        builder: (context, state) =>
+            NewBookingScreen(room: state.pathParameters['room'].toString(), time: state.pathParameters['time'].toString())),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {

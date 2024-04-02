@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart' // new
-    hide
-        EmailAuthProvider,
-        PhoneAuthProvider; // new
-import 'package:flutter/material.dart'; // new
-import 'package:provider/provider.dart'; // new
-import '../app_state.dart'; // new
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:timeedit/blocs/authentication_bloc.dart';
 
 
 
