@@ -80,12 +80,14 @@ class AccordionWidget extends StatefulWidget {
   final List<String> content;
   final Color backgroundColor; // Background color
   final List<DocumentSnapshot> buildingRooms; // Add buildingRooms
+  final String? noRoomsMessage; // New parameter to display message when there are no rooms
 
   AccordionWidget({
     required this.title,
     required this.content,
     required this.backgroundColor,
     required this.buildingRooms, // Receive buildingRooms
+    this.noRoomsMessage, // New parameter
   });
 
   @override
@@ -120,44 +122,57 @@ class _AccordionWidgetState extends State<AccordionWidget> {
           if (_expanded)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.content
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => GestureDetector(
-                      onTap: () {
-                        _showRoomInfoDialog(context, entry.value, widget.buildingRooms); // Pass buildingRooms
-                      },
-                      child: Container(
-                        color: entry.key.isOdd
-                            ? Color(0xFFD9D9D9)
-                            : Color(0xFFEFECE7),
+              children: widget.content.isEmpty // Check if content is empty
+                  ? [
+                      // Display noRoomsMessage if content is empty
+                      Container(
+                        color: Colors.white, // Set background color to match list item
                         child: ListTile(
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  entry.value,
-                                  style: TextStyle(
-                                      color: Colors
-                                          .black), // Set text color to black
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.map),
-                                onPressed: () {
-                                  // Navigate to the maps screen when map icon is pressed
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => MapsScreen()));
-                                },
-                              ),
-                            ],
+                          title: Text(
+                            widget.noRoomsMessage ?? 'No rooms available',
+                            style: TextStyle(color: Colors.black),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
+                    ]
+                  : widget.content
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => GestureDetector(
+                          onTap: () {
+                            _showRoomInfoDialog(context, entry.value, widget.buildingRooms); // Pass buildingRooms
+                          },
+                          child: Container(
+                            color: entry.key.isOdd
+                                ? Color(0xFFD9D9D9)
+                                : Color(0xFFEFECE7),
+                            child: ListTile(
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      entry.value,
+                                      style: TextStyle(
+                                          color: Colors
+                                              .black), // Set text color to black
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.map),
+                                    onPressed: () {
+                                      // Navigate to the maps screen when map icon is pressed
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => MapsScreen()));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
             ),
           Divider(height: 0, color: Colors.black), // Set divider color to black
         ],
@@ -180,6 +195,7 @@ class _AccordionWidgetState extends State<AccordionWidget> {
     );
   }
 }
+
 
 
 class CustomDialog extends StatelessWidget {
