@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timeedit/screens/maps.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirstComeScreen extends StatelessWidget {
   @override
@@ -9,7 +10,6 @@ class FirstComeScreen extends StatelessWidget {
         title: Text('First-come-first-serve rooms'),
       ),
       body: SingleChildScrollView(
-        // Wrap the Column with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -19,34 +19,47 @@ class FirstComeScreen extends StatelessWidget {
                 'These rooms are free to use - no booking needed!',
                 style: TextStyle(fontSize: 18),
               ),
-              SizedBox(
-                  height: 20), // Add spacing between the title and accordions
-              AccordionWidget(
-                title: 'Maskin',
-                content: ['Room 1', 'Room 2', 'Room 3'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'Kemi',
-                content: ['Room 4', 'Room 5', 'Room 6'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'Fysik',
-                content: ['Room 7', 'Room 8', 'Room 9'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'SB',
-                content: [
-                  'Room 10',
-                  'Room 11',
-                  'Room 12'
-                ], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              SizedBox(height: 20),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  final roomDocs = snapshot.data!.docs;
+                  // Group rooms by building
+                  Map<String, List<DocumentSnapshot>> roomsByBuilding = {};
+                  roomDocs.forEach((doc) {
+                    final roomData = doc.data() as Map<String, dynamic>;
+                    final String building = roomData['building'];
+                    if (!roomsByBuilding.containsKey(building)) {
+                      roomsByBuilding[building] = [];
+                    }
+                    roomsByBuilding[building]!.add(doc);
+                  });
+                  return Column(
+                    children: roomsByBuilding.entries.map((entry) {
+                      final buildingName = entry.key;
+                      final buildingRooms = entry.value;
+                      return AccordionWidget(
+                        title: buildingName,
+                        content: buildingRooms.map((doc) {
+                          final roomData = doc.data() as Map<String, dynamic>;
+                          final bool isBookable = roomData['bookable'];
+                          if (!isBookable) {
+                            return roomData['name'];
+                          } else {
+                            return null; // Don't include bookable rooms
+                          }
+                        }).where((room) => room != null).toList().cast<String>(),
+                        backgroundColor: Colors.grey, // You can set your own color here
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ],
           ),
@@ -55,6 +68,7 @@ class FirstComeScreen extends StatelessWidget {
     );
   }
 }
+
 
 class AccordionWidget extends StatefulWidget {
   final String title;
