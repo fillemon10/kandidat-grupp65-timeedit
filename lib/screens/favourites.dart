@@ -27,27 +27,30 @@ class FavouritesScreen extends StatelessWidget {
               itemCount: roomDocs.length,
               itemBuilder: (context, index) {
                 final roomData = roomDocs[index].data() as Map<String, dynamic>;
-                return Dismissible(
-                  key: Key(roomDocs[index].id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.white,
+                return SizedBox(
+                  height: 90, // Adjust the height as needed
+                  child: Dismissible(
+                    key: Key(roomDocs[index].id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  onDismissed: (direction) {
-                    FirebaseFirestore.instance
-                        .collection('rooms')
-                        .doc(roomDocs[index].id)
-                        .update({'favourite': false});
-                  },
-                  child: RoomButton(
-                    roomName: roomData['name'],
-                    backgroundColor: Color(0xFFBFD5BC),
-                    roomData: roomData, // Pass roomData to RoomButton
+                    onDismissed: (direction) {
+                      FirebaseFirestore.instance
+                          .collection('rooms')
+                          .doc(roomDocs[index].id)
+                          .update({'favourite': false});
+                    },
+                    child: RoomButton(
+                      roomName: roomData['name'],
+                      backgroundColor: Color(0xFFBFD5BC),
+                      roomData: roomData, // Pass roomData to RoomButton
+                    ),
                   ),
                 );
               },
@@ -147,11 +150,18 @@ class _RoomButtonState extends State<RoomButton> {
     // Update favorite status in Firestore
     FirebaseFirestore.instance
         .collection('rooms')
-        .doc(widget.roomData['id']) // Assuming you have an 'id' field in your room data
-        .update({'favourite': isFavorite});
+        .where('name', isEqualTo: widget.roomData['name']) // Assuming 'name' is the field containing the room name
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            doc.reference.update({'favourite': isFavorite});
+          });
+        })
+        .catchError((error) {
+          print("Failed to update favorite status: $error");
+        });
   }
 }
-
 
 class FavouriteRoomDialog extends StatefulWidget {
   final Map<String, dynamic> roomData;
@@ -185,7 +195,7 @@ class _FavouriteRoomDialogState extends State<FavouriteRoomDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0), // Adjust top and bottom padding
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -206,7 +216,7 @@ class _FavouriteRoomDialogState extends State<FavouriteRoomDialog> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0), // Adjust top and bottom padding
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -214,6 +224,7 @@ class _FavouriteRoomDialogState extends State<FavouriteRoomDialog> {
                 _buildInfoRow('Floor:', widget.roomData['floor']), // Floor
                 _buildInfoRow('Size:', widget.roomData['size']), // Size
                 _buildInfoRow('Shared:', widget.roomData['shared']), // Shared
+                _buildInfoRow('Amenities:', widget.roomData['amenities']), 
                 Row(
                   children: [
                     Text(
@@ -284,22 +295,23 @@ class _FavouriteRoomDialogState extends State<FavouriteRoomDialog> {
   }
 
   void toggleFavorite() {
-  setState(() {
-    isFavorite = !isFavorite;
-  });
+    setState(() {
+      isFavorite = !isFavorite;
+    });
 
-  // Update favorite status in Firestore
-  FirebaseFirestore.instance
-      .collection('rooms')
-      .where('name', isEqualTo: widget.roomData['name']) // Assuming 'name' is the field containing the room name
-      .get()
-      .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          doc.reference.update({'favourite': isFavorite});
+    // Update favorite status in Firestore
+    FirebaseFirestore.instance
+        .collection('rooms')
+        .where('name', isEqualTo: widget.roomData['name']) // Assuming 'name' is the field containing the room name
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            doc.reference.update({'favourite': isFavorite});
+          });
+        })
+        .catchError((error) {
+          print("Failed to update favorite status: $error");
         });
-      })
-      .catchError((error) {
-        print("Failed to update favorite status: $error");
-      });
+  }
 }
-}
+
