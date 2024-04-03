@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FavouritesScreen extends StatelessWidget {
   @override
@@ -9,52 +10,101 @@ class FavouritesScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            RoomButton(roomName: 'Room 1', backgroundColor: Color(0xFFBFD5BC)),
-            RoomButton(roomName: 'Room 2', backgroundColor: Color(0xFFBFD5BC)),
-            RoomButton(roomName: 'Room 3', backgroundColor: Color(0xFFBFD5BC)),
-            RoomButton(roomName: 'Room 4', backgroundColor: Color(0xFFBFD5BC)),
-            RoomButton(roomName: 'Room 5', backgroundColor: Color(0xFFBFD5BC)),
-          ],
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('rooms')
+              .where('favourite', isEqualTo: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            final roomDocs = snapshot.data!.docs;
+            return ListView.builder(
+              itemCount: roomDocs.length,
+              itemBuilder: (context, index) {
+                final roomData = roomDocs[index].data() as Map<String, dynamic>;
+                return Dismissible(
+                  key: Key(roomDocs[index].id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onDismissed: (direction) {
+                    FirebaseFirestore.instance
+                        .collection('rooms')
+                        .doc(roomDocs[index].id)
+                        .update({'favourite': false});
+                  },
+                  child: RoomButton(
+                    roomName: roomData['name'],
+                    backgroundColor: Color(0xFFBFD5BC),
+                    roomData: roomData, // Pass roomData to RoomButton
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class RoomButton extends StatelessWidget {
+class RoomButton extends StatefulWidget {
   final String roomName;
   final Color backgroundColor;
+  final Map<String, dynamic> roomData;
 
-  const RoomButton({required this.roomName, required this.backgroundColor});
+  const RoomButton({
+    required this.roomName,
+    required this.backgroundColor,
+    required this.roomData,
+  });
+
+  @override
+  _RoomButtonState createState() => _RoomButtonState();
+}
+
+class _RoomButtonState extends State<RoomButton> {
+  late bool isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.roomData['favourite'] ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double
-          .infinity, // Set button width to match the width of the ListView
+      width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ElevatedButton(
           onPressed: () {
-            // Show the modal panel when the button is pressed
             showDialog(
               context: context,
               builder: (BuildContext context) {
                 return FavouriteRoomDialog(
-                  roomName: roomName,
-                  isShared:
-                      true, // Set the shared status according to your logic
+                  roomData: widget.roomData,
                   onClose: () {
-                    Navigator.of(context).pop(); // Close the modal panel
+                    Navigator.of(context).pop();
                   },
                 );
               },
             );
           },
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(backgroundColor),
+            backgroundColor: MaterialStateProperty.all(widget.backgroundColor),
             padding: MaterialStateProperty.all(EdgeInsets.all(16.0)),
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
@@ -66,18 +116,21 @@ class RoomButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Align(
-                alignment: Alignment.centerLeft, // Align text to the left
+                alignment: Alignment.centerLeft,
                 child: Text(
-                  roomName,
+                  widget.roomName,
                   style: TextStyle(
                     fontSize: 16.0,
-                    color: Colors.black, // Set text color
+                    color: Colors.black,
                   ),
                 ),
               ),
-              Icon(
-                Icons.favorite,
-                color: Colors.red, // Set heart icon color to red
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : null,
+                ),
+                onPressed: toggleFavorite,
               ),
             ],
           ),
@@ -85,25 +138,38 @@ class RoomButton extends StatelessWidget {
       ),
     );
   }
+
+  void toggleFavorite() {
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    // Update favorite status in Firestore
+    FirebaseFirestore.instance
+        .collection('rooms')
+        .doc(widget.roomData['id']) // Assuming you have an 'id' field in your room data
+        .update({'favourite': isFavorite});
+  }
 }
 
+
 class FavouriteRoomDialog extends StatelessWidget {
-  final String roomName;
-  final bool isShared;
+  final Map<String, dynamic> roomData;
   final VoidCallback onClose;
 
-  const FavouriteRoomDialog(
-      {Key? key,
-      required this.roomName,
-      required this.isShared,
-      required this.onClose})
-      : super(key: key);
+  const FavouriteRoomDialog({
+    Key? key,
+    required this.roomData,
+    required this.onClose,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bool isFavorite = roomData['favourite'] ?? false;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      backgroundColor: Color(0xFFF0F0F0), // Set background color to F0F0F0
+      backgroundColor: Color(0xFFF0F0F0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -113,11 +179,12 @@ class FavouriteRoomDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  roomName,
+                  roomData['name'],
                   style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.close),
@@ -132,13 +199,32 @@ class FavouriteRoomDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('House:', 'Sample House'),
-                _buildInfoRow('Size:', 'Sample Size'),
-                _buildInfoRow('Amenities:', 'Sample Amenities'),
-                _buildInfoRow('Shared:',
-                    isShared ? 'Yes' : 'No'), // Display shared status
-                _buildInfoRow(
-                    'Favorite room:', ''), // Add row for favorite room
+                _buildInfoRow('Building:', roomData['building']), // Building
+                _buildInfoRow('Floor:', roomData['floor']), // Floor
+                _buildInfoRow('Size:', roomData['size']), // Size
+                _buildInfoRow('Shared:', roomData['shared']), // Shared
+                Row(
+                  children: [
+                    Text(
+                      'Favorite room:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : null,
+                      ),
+                      onPressed: () {
+                        // Toggle favorite status
+                        FirebaseFirestore.instance
+                            .collection('rooms')
+                            .doc(roomData['id']) // Assuming you have an 'id' field in your room data
+                            .update({'favourite': !isFavorite});
+                      },
+                    ),
+                  ],
+                ),
                 SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,7 +235,8 @@ class FavouriteRoomDialog extends StatelessWidget {
                       },
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            Color(0xFFBFD5BC)), // Set background color
+                          Color(0xFFBFD5BC),
+                        ),
                       ),
                       child: Text('See available slots'),
                     ),
@@ -157,7 +244,8 @@ class FavouriteRoomDialog extends StatelessWidget {
                       onPressed: onClose,
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                            color: Color(0xFFEFECEC)), // Set border color
+                          color: Color(0xFFEFECEC),
+                        ),
                       ),
                       child: Text('Close'),
                     ),
@@ -171,41 +259,22 @@ class FavouriteRoomDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    // If the label is for "Favorite room", display a filled red heart icon
-    if (label == 'Favorite room:') {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.favorite,
-              color: Colors.red, // Set heart icon color to red
-            ),
-          ],
-        ),
-      );
+  Widget _buildInfoRow(String label, dynamic value) {
+    if (value is bool) {
+      value = value ? 'Yes' : 'No';
     }
-    // Otherwise, display the regular info row
-    else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(width: 8),
-            Text(value),
-          ],
-        ),
-      );
-    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 8),
+          Text(value.toString()),
+        ],
+      ),
+    );
   }
 }
