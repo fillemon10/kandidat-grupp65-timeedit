@@ -153,7 +153,7 @@ class _RoomButtonState extends State<RoomButton> {
 }
 
 
-class FavouriteRoomDialog extends StatelessWidget {
+class FavouriteRoomDialog extends StatefulWidget {
   final Map<String, dynamic> roomData;
   final VoidCallback onClose;
 
@@ -164,9 +164,20 @@ class FavouriteRoomDialog extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    bool isFavorite = roomData['favourite'] ?? false;
+  _FavouriteRoomDialogState createState() => _FavouriteRoomDialogState();
+}
 
+class _FavouriteRoomDialogState extends State<FavouriteRoomDialog> {
+  late bool isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.roomData['favourite'] ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       backgroundColor: Color(0xFFF0F0F0),
@@ -179,7 +190,7 @@ class FavouriteRoomDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  roomData['name'],
+                  widget.roomData['name'],
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -188,7 +199,7 @@ class FavouriteRoomDialog extends StatelessWidget {
                 ),
                 IconButton(
                   icon: Icon(Icons.close),
-                  onPressed: onClose,
+                  onPressed: widget.onClose,
                   color: Colors.black,
                 ),
               ],
@@ -199,10 +210,10 @@ class FavouriteRoomDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('Building:', roomData['building']), // Building
-                _buildInfoRow('Floor:', roomData['floor']), // Floor
-                _buildInfoRow('Size:', roomData['size']), // Size
-                _buildInfoRow('Shared:', roomData['shared']), // Shared
+                _buildInfoRow('Building:', widget.roomData['building']), // Building
+                _buildInfoRow('Floor:', widget.roomData['floor']), // Floor
+                _buildInfoRow('Size:', widget.roomData['size']), // Size
+                _buildInfoRow('Shared:', widget.roomData['shared']), // Shared
                 Row(
                   children: [
                     Text(
@@ -215,13 +226,7 @@ class FavouriteRoomDialog extends StatelessWidget {
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: isFavorite ? Colors.red : null,
                       ),
-                      onPressed: () {
-                        // Toggle favorite status
-                        FirebaseFirestore.instance
-                            .collection('rooms')
-                            .doc(roomData['id']) // Assuming you have an 'id' field in your room data
-                            .update({'favourite': !isFavorite});
-                      },
+                      onPressed: toggleFavorite,
                     ),
                   ],
                 ),
@@ -241,7 +246,7 @@ class FavouriteRoomDialog extends StatelessWidget {
                       child: Text('See available slots'),
                     ),
                     OutlinedButton(
-                      onPressed: onClose,
+                      onPressed: widget.onClose,
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                           color: Color(0xFFEFECEC),
@@ -277,4 +282,24 @@ class FavouriteRoomDialog extends StatelessWidget {
       ),
     );
   }
+
+  void toggleFavorite() {
+  setState(() {
+    isFavorite = !isFavorite;
+  });
+
+  // Update favorite status in Firestore
+  FirebaseFirestore.instance
+      .collection('rooms')
+      .where('name', isEqualTo: widget.roomData['name']) // Assuming 'name' is the field containing the room name
+      .get()
+      .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          doc.reference.update({'favourite': isFavorite});
+        });
+      })
+      .catchError((error) {
+        print("Failed to update favorite status: $error");
+      });
+}
 }
