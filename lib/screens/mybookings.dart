@@ -63,9 +63,10 @@ class MyBookingsScreen extends StatelessWidget {
             const SizedBox(height: 0),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('bookings')
-                  .where('userId', isEqualTo: '7W2G4jT783Q9CSQblETud8bNMJR2') // Assuming 'userId' is the field containing the user ID
-                  .snapshots(),
+                .collection('bookings')
+                .where('userId', isEqualTo: '7W2G4jT783Q9CSQblETud8bNMJR2')
+                .orderBy('startTime', descending: false) // Add orderBy clause to sort by startTime in ascending order
+                .snapshots(),
               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
