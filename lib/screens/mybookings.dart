@@ -154,107 +154,144 @@ class MyBookingsScreen extends StatelessWidget {
 
 
   void _showBookingDetails(BuildContext context, DocumentSnapshot booking) {
-    String roomName = booking['roomName']; // Get the room name from the booking
+  String roomName = booking['roomName']; // Get the room name from the booking
 
-    FirebaseFirestore.instance
-        .collection('rooms')
-        .where('name', isEqualTo: roomName)
-        .get()
-        .then((QuerySnapshot roomSnapshot) {
-      if (roomSnapshot.docs.isNotEmpty) {
-        Map<String, dynamic> roomData = roomSnapshot.docs.first.data() as Map<String, dynamic>;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Color(0xFFBFD5BC),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0), // Rounded corners for the dialog
-              ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 24.0), // Adjusted padding for the booking title
-                      child: Text(
-                        'Booking ${_formatBookingTitle(booking)}',
-                        style: TextStyle(fontSize: 14.0), // Reduced font size for the booking title
-                      ),
+  FirebaseFirestore.instance
+      .collection('rooms')
+      .where('name', isEqualTo: roomName)
+      .get()
+      .then((QuerySnapshot roomSnapshot) {
+    if (roomSnapshot.docs.isNotEmpty) {
+      Map<String, dynamic> roomData = roomSnapshot.docs.first.data() as Map<String, dynamic>;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xFFBFD5BC),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0), // Rounded corners for the dialog
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 24.0), // Adjusted padding for the booking title
+                    child: Text(
+                      'Booking ${_formatBookingTitle(booking)}',
+                      style: TextStyle(fontSize: 14.0), // Reduced font size for the booking title
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Name: ${roomData['name']}'),
-                  Text('Building: ${roomData['building']}'),
-                  Text('Floor: ${roomData['floor']}'),
-                  Text('Size: ${roomData['size']}'),
-                  Text('Amenities: ${roomData['amenities']}'),
-                  Text('Shared: ${roomData['shared']}'),
-                ],
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Add edit booking functionality
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
-                  ),
-                  child: Text('Edit Booking'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Add cancel booking functionality
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
-                  ),
-                  child: Text('Cancel Booking'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // Room data not found
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Color(0xFFBFD5BC),
-              title: Text('Booking ${_formatBookingTitle(booking)}'),
-              content: Text('Room information not available.'),
-              actions: [
-                ElevatedButton(
+                IconButton(
+                  icon: Icon(Icons.close),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
-                  ),
-                  child: Text('Close'),
                 ),
               ],
-            );
-          },
-        );
-      }
-    }).catchError((error) {
-      print("Failed to fetch room data: $error");
-      // Handle error
-    });
-  }
+            ),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Name: ${roomData['name']}'),
+                Text('Building: ${roomData['building']}'),
+                Text('Floor: ${roomData['floor']}'),
+                Text('Size: ${roomData['size']}'),
+                Text('Amenities: ${roomData['amenities']}'),
+                Text('Shared: ${roomData['shared']}'),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  // Add edit booking functionality
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
+                ),
+                child: Text('Edit Booking'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Show confirmation dialog before deleting booking
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Color(0xFFBFD5BC),
+                        title: Text('Cancel Booking'),
+                        content: Text('Are you sure you want to cancel this booking?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close confirmation dialog
+                            },
+                            child: Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // Delete booking document from Firestore
+                              FirebaseFirestore.instance
+                                  .collection('bookings')
+                                  .doc(booking.id)
+                                  .delete()
+                                  .then((_) {
+                                Navigator.of(context).pop(); // Close confirmation dialog
+                                Navigator.of(context).pop(); // Close booking details dialog
+                                // No need to explicitly refresh the list as the stream builder will automatically rebuild the list
+                              }).catchError((error) {
+                                print('Failed to delete booking: $error');
+                                // Handle error
+                              });
+                            },
+                            child: Text('Yes'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
+                ),
+                child: Text('Cancel Booking'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Room data not found
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xFFBFD5BC),
+            title: Text('Booking ${_formatBookingTitle(booking)}'),
+            content: Text('Room information not available.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
+                ),
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }).catchError((error) {
+    print("Failed to fetch room data: $error");
+    // Handle error
+  });
+}
+
 
   String _formatBookingTitle(DocumentSnapshot booking) {
     DateTime startTime = booking['startTime'].toDate();
