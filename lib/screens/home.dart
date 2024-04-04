@@ -41,20 +41,22 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () {
                       context.push('/my-bookings');
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16), // Adjust button height
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
+                      foregroundColor: MaterialStateProperty.all(Color(0xFF4D4A4A)), // Set text color
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
                     ),
-                    child: Text('My Bookings'),
+                    child: Text('My bookings'),
                   ),
                   SizedBox(height: 12), // Add spacing
                   ElevatedButton(
                     onPressed: () {
                       context.push('/first-come-first-served');
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16), // Adjust button height
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
+                      foregroundColor: MaterialStateProperty.all(Color(0xFF4D4A4A)), // Set text color
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
                     ),
                     child: Text('First-come-first-served rooms'),
                   ),
@@ -63,9 +65,10 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () {
                       context.push('/favourite_rooms');
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16), // Adjust button height
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)), // Set background color
+                      foregroundColor: MaterialStateProperty.all(Color(0xFF4D4A4A)), // Set text color
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
                     ),
                     child: Text('My favourite rooms'),
                   ),
@@ -78,6 +81,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 
 class TitleSection extends StatelessWidget {
   final String title;

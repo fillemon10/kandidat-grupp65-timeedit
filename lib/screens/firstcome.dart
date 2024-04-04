@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timeedit/screens/maps.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirstComeScreen extends StatelessWidget {
   @override
@@ -9,7 +10,6 @@ class FirstComeScreen extends StatelessWidget {
         title: Text('First-come-first-serve rooms'),
       ),
       body: SingleChildScrollView(
-        // Wrap the Column with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -19,34 +19,53 @@ class FirstComeScreen extends StatelessWidget {
                 'These rooms are free to use - no booking needed!',
                 style: TextStyle(fontSize: 18),
               ),
-              SizedBox(
-                  height: 20), // Add spacing between the title and accordions
-              AccordionWidget(
-                title: 'Maskin',
-                content: ['Room 1', 'Room 2', 'Room 3'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'Kemi',
-                content: ['Room 4', 'Room 5', 'Room 6'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'Fysik',
-                content: ['Room 7', 'Room 8', 'Room 9'], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
-              ),
-              SizedBox(height: 16), // Add spacing between accordion items
-              AccordionWidget(
-                title: 'SB',
-                content: [
-                  'Room 10',
-                  'Room 11',
-                  'Room 12'
-                ], // Example content list
-                backgroundColor: Color(0xFFBFD5BC), // Set custom color
+              SizedBox(height: 20),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  final roomDocs = snapshot.data!.docs;
+                  // Group rooms by building
+                  Map<String, List<DocumentSnapshot>> roomsByBuilding = {};
+                  roomDocs.forEach((doc) {
+                    final roomData = doc.data() as Map<String, dynamic>;
+                    final String building = roomData['building'];
+                    if (!roomsByBuilding.containsKey(building)) {
+                      roomsByBuilding[building] = [];
+                    }
+                    roomsByBuilding[building]!.add(doc);
+                  });
+                  return Column(
+                    children: roomsByBuilding.entries.map((entry) {
+                    final buildingName = entry.key;
+                    final buildingRooms = entry.value;
+                    return Column(
+                      children: [
+                        SizedBox(height: 10), // Add space between each AccordionWidget
+                        AccordionWidget(
+                          title: buildingName,
+                          content: buildingRooms.map((doc) {
+                            final roomData = doc.data() as Map<String, dynamic>;
+                            final bool isBookable = roomData['bookable'];
+                            if (!isBookable) {
+                              return roomData['name'];
+                            } else {
+                              return null; // Don't include bookable rooms
+                            }
+                          }).where((room) => room != null).toList().cast<String>(),
+                          backgroundColor: Color(0xFFBFD5BC), // You can set your own color here
+                          buildingRooms: buildingRooms, // Pass buildingRooms to AccordionWidget
+                        ),
+                      ],
+                    );
+                 }).toList(),
+                );
+                },
               ),
             ],
           ),
@@ -60,11 +79,16 @@ class AccordionWidget extends StatefulWidget {
   final String title;
   final List<String> content;
   final Color backgroundColor; // Background color
+  final List<DocumentSnapshot> buildingRooms; // Add buildingRooms
+  final String? noRoomsMessage; // New parameter to display message when there are no rooms
 
-  AccordionWidget(
-      {required this.title,
-      required this.content,
-      required this.backgroundColor});
+  AccordionWidget({
+    required this.title,
+    required this.content,
+    required this.backgroundColor,
+    required this.buildingRooms, // Receive buildingRooms
+    this.noRoomsMessage, // New parameter
+  });
 
   @override
   _AccordionWidgetState createState() => _AccordionWidgetState();
@@ -98,44 +122,57 @@ class _AccordionWidgetState extends State<AccordionWidget> {
           if (_expanded)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.content
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => GestureDetector(
-                      onTap: () {
-                        _showRoomInfoDialog(context, entry.value);
-                      },
-                      child: Container(
-                        color: entry.key.isOdd
-                            ? Color(0xFFD9D9D9)
-                            : Color(0xFFEFECE7),
+              children: widget.content.isEmpty // Check if content is empty
+                  ? [
+                      // Display noRoomsMessage if content is empty
+                      Container(
+                        color: Colors.white, // Set background color to match list item
                         child: ListTile(
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  entry.value,
-                                  style: TextStyle(
-                                      color: Colors
-                                          .black), // Set text color to black
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.map),
-                                onPressed: () {
-                                  // Navigate to the maps screen when map icon is pressed
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => MapsScreen()));
-                                },
-                              ),
-                            ],
+                          title: Text(
+                            widget.noRoomsMessage ?? 'No rooms available',
+                            style: TextStyle(color: Colors.black),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
+                    ]
+                  : widget.content
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => GestureDetector(
+                          onTap: () {
+                            _showRoomInfoDialog(context, entry.value, widget.buildingRooms); // Pass buildingRooms
+                          },
+                          child: Container(
+                            color: entry.key.isOdd
+                                ? Color(0xFFD9D9D9)
+                                : Color(0xFFEFECE7),
+                            child: ListTile(
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      entry.value,
+                                      style: TextStyle(
+                                          color: Colors
+                                              .black), // Set text color to black
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.map),
+                                    onPressed: () {
+                                      // Navigate to the maps screen when map icon is pressed
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => MapsScreen()));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
             ),
           Divider(height: 0, color: Colors.black), // Set divider color to black
         ],
@@ -143,12 +180,13 @@ class _AccordionWidgetState extends State<AccordionWidget> {
     );
   }
 
-  void _showRoomInfoDialog(BuildContext context, String roomName) {
+  void _showRoomInfoDialog(BuildContext context, String roomName, List<DocumentSnapshot> buildingRooms) {
+    final roomSnapshot = buildingRooms.firstWhere((doc) => doc['name'] == roomName);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
-          roomName: roomName,
+          roomSnapshot: roomSnapshot,
           onClose: () {
             Navigator.of(context).pop();
           },
@@ -158,15 +196,23 @@ class _AccordionWidgetState extends State<AccordionWidget> {
   }
 }
 
+
+
 class CustomDialog extends StatelessWidget {
-  final String roomName;
+  final DocumentSnapshot roomSnapshot;
   final VoidCallback onClose;
 
-  const CustomDialog({Key? key, required this.roomName, required this.onClose})
+  const CustomDialog({Key? key, required this.roomSnapshot, required this.onClose})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final roomData = roomSnapshot.data() as Map<String, dynamic>;
+
+    // Convert floor and size to strings
+    final String floor = roomData['floor'].toString();
+    final String size = roomData['size'].toString();
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       backgroundColor: Color(0xFFF0F0F0), // Set background color to F0F0F0
@@ -179,7 +225,7 @@ class CustomDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  roomName,
+                  roomData['name'],
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -198,9 +244,9 @@ class CustomDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('House:', 'Sample House'),
-                _buildInfoRow('Size:', 'Sample Size'),
-                _buildInfoRow('Amenities:', 'Sample Amenities'),
+                _buildInfoRow('Building:', roomData['building']),
+                _buildInfoRow('Floor:', floor), // Use converted floor value
+                _buildInfoRow('Size:', size), // Use converted size value
                 SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
