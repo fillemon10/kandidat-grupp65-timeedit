@@ -193,6 +193,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Color.fromRGBO(191, 213, 188, 1),
+            background: Color(0xFFEFECEC),
+            primary: Color(0xFFBFD5BC),
+            primaryContainer: Color(0xFFF1F1F1),
             brightness: Brightness.light,
           ),
           visualDensity: VisualDensity.adaptivePlatformDensity,
