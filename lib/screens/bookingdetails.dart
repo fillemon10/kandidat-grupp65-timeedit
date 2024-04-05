@@ -211,26 +211,57 @@ void _selectEndTime(BuildContext context) async {
 }
 
 
-  void _updateBooking() {
-  if (newEndTime.difference(newStartTime).inHours <= 4) {
-    FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).update({
-      'startTime': newStartTime,
-      'endTime': newEndTime,
-    }).then((_) {
-      Navigator.of(context).pop(); // Close booking details dialog
-    }).catchError((error) {
-      print('Failed to update booking: $error');
-      // Handle error
-    });
-  } else {
+void _updateBooking() async {
+  // Fetch all bookings for the room
+  QuerySnapshot roomBookingsSnapshot = await FirebaseFirestore.instance
+      .collection('bookings')
+      .where('roomName', isEqualTo: widget.booking['roomName'])
+      .get();
+
+  // Convert the query snapshot to a list of bookings
+  List<DocumentSnapshot> roomBookings = roomBookingsSnapshot.docs;
+
+  // Exclude the current booking from the list
+  roomBookings.removeWhere((doc) => doc.id == widget.booking.id);
+
+  // Check for overlapping bookings
+  bool hasOverlappingBookings = roomBookings.any((doc) {
+    DateTime startTime = doc['startTime'].toDate();
+    DateTime endTime = doc['endTime'].toDate();
+    return newStartTime.isBefore(endTime) && newEndTime.isAfter(startTime);
+  });
+
+  if (hasOverlappingBookings) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Your booking can be 4 hours maximum.'),
+        content: Text('The room is already booked for the new time slot.'),
         backgroundColor: Colors.red,
       ),
     );
+  } else {
+    // Check if the new booking duration exceeds the maximum allowed duration
+    if (newEndTime.difference(newStartTime).inHours <= 4) {
+      FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).update({
+        'startTime': newStartTime,
+        'endTime': newEndTime,
+      }).then((_) {
+        Navigator.of(context).pop(); // Close booking details dialog
+      }).catchError((error) {
+        print('Failed to update booking: $error');
+        // Handle error
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Your booking can be 4 hours maximum.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
+
+
 
 
   String _formatBookingTitle(DocumentSnapshot booking) {
