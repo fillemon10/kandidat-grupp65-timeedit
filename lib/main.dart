@@ -18,7 +18,8 @@ import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
 import 'package:timeedit/screens/filter.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:timeedit/blocs/settings_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure widgets are initialized
@@ -29,6 +30,8 @@ void main() async {
       BlocProvider<AuthenticationBloc>(
           create: (context) => AuthenticationBloc()),
       BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
+      BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
+      BlocProvider<SettingsBloc>(create: (context) => SettingsBloc())
     ],
     child: const MyApp(),
   ));
@@ -182,25 +185,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'TimeEdit',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(191, 213, 188, 1),
-          brightness: Brightness.light,
+    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, themeState) {
+      return MaterialApp.router(
+        routerConfig: _router,
+        title: 'TimeEdit',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Color.fromRGBO(191, 213, 188, 1),
+            brightness: Brightness.light,
+          ),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(191, 213, 188, 1),
-          brightness: Brightness.dark,
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Color.fromRGBO(191, 213, 188, 1),
+            brightness: Brightness.dark,
+          ),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      themeMode: ThemeMode.system,
-    );
+        themeMode: themeState.themeMode,
+      );
+    });
   }
 }

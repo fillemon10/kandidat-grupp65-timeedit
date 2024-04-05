@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:timeedit/blocs/authentication_bloc.dart';
+import 'package:timeedit/blocs/settings_bloc.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -69,14 +70,14 @@ class SettingsScreenContent extends StatelessWidget {
                   /**
                        * Container for the 'account details' textbox at the top of the screen
                        */
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFBFD5BC),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: const Text(
-                          'Account Details',
+                  Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFFBFD5BC),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: const Text('Account Details',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w300))),
 
@@ -152,6 +153,17 @@ class SettingsScreenContent extends StatelessWidget {
                                 .setColorBlindMode(value);
                             print('ColorBlindMode: $value');
                           }),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Text(
+                        'Dark Mode:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w300),
+                      ),
+                      ThemeToggleWidget(),
                     ],
                   ),
                 ],
@@ -248,5 +260,39 @@ class SwitchStates extends ChangeNotifier {
   void setNotifications(bool value) {
     _notifications = value;
     notifyListeners();
+  }
+}
+
+class ThemeToggleWidget extends StatefulWidget {
+  const ThemeToggleWidget({Key? key}) : super(key: key);
+
+  @override
+  _ThemeToggleWidgetState createState() => _ThemeToggleWidgetState();
+}
+
+class _ThemeToggleWidgetState extends State<ThemeToggleWidget> {
+  bool _isDarkMode = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update _isDarkMode based on the current theme
+    _isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: _isDarkMode,
+      onChanged: (newValue) {
+        setState(() {
+          _isDarkMode = newValue;
+        });
+        // Dispatch the ThemeEvent
+        BlocProvider.of<ThemeBloc>(context).add(
+          ThemeEvent(themeMode: newValue ? ThemeMode.dark : ThemeMode.light),
+        );
+      },
+    );
   }
 }
