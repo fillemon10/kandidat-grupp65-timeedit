@@ -172,31 +172,47 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
     );
   }
 
-  void _selectStartTime(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(newStartTime),
-    );
-    if (picked != null) {
-      setState(() {
-        newStartTime = DateTime(newStartTime.year, newStartTime.month, newStartTime.day, picked.hour, picked.minute);
-      });
-    }
+ void _selectStartTime(BuildContext context) async {
+  final picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.fromDateTime(newStartTime),
+    // Set to 24-hour format
+    builder: (BuildContext context, Widget? child) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      );
+    },
+  );
+  if (picked != null) {
+    setState(() {
+      newStartTime = DateTime(newStartTime.year, newStartTime.month, newStartTime.day, picked.hour, picked.minute);
+    });
   }
+}
 
-  void _selectEndTime(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(newEndTime),
-    );
-    if (picked != null) {
-      setState(() {
-        newEndTime = DateTime(newEndTime.year, newEndTime.month, newEndTime.day, picked.hour, picked.minute);
-      });
-    }
+void _selectEndTime(BuildContext context) async {
+  final picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.fromDateTime(newEndTime),
+    // Set to 24-hour format
+    builder: (BuildContext context, Widget? child) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      );
+    },
+  );
+  if (picked != null) {
+    setState(() {
+      newEndTime = DateTime(newEndTime.year, newEndTime.month, newEndTime.day, picked.hour, picked.minute);
+    });
   }
+}
+
 
   void _updateBooking() {
+  if (newEndTime.difference(newStartTime).inHours <= 4) {
     FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).update({
       'startTime': newStartTime,
       'endTime': newEndTime,
@@ -206,7 +222,16 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
       print('Failed to update booking: $error');
       // Handle error
     });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Your booking can be 4 hours maximum.'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   String _formatBookingTitle(DocumentSnapshot booking) {
     DateTime startTime = booking['startTime'].toDate();
