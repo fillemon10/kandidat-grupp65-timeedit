@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -25,79 +24,94 @@ class _BookingRowState extends State<BookingRow> {
   DateTime _dayStart = DateTime.now().copyWith(
       hour: 8, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
-
   DateTime _dayEnd = DateTime.now().copyWith(
       hour: 19, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
   final int _timeSlotInterval = 15;
-  final double _timeSlotWidth = 10;
-  @override
+  double _timeSlotWidth = 0;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        children: [
-          buildRoomHeader(),
-          _buildTimeLabels(),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: widget.scrollController, // Add controller here
-            child: buildRow(),
+    return LayoutBuilder(
+      // Use LayoutBuilder to get parent width
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth;
+        _timeSlotWidth = availableWidth / _calculateTimeSlots();
+
+        return SizedBox(
+          child: Card(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(widget.room.name,
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      // Time Headers
+                      _buildTimeHeaderRow(),
+                      // Timeslots and Bookings
+                      Container(
+                        child: _buildTimeSlotsRow(),
+                      )
+                    ]),
+              ),
+            ]),
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  // --- Time Header ---
+  Widget _buildTimeHeaderRow() {
+    return Row(
+      children: List.generate(
+        _calculateTimeSlots(),
+        (index) =>
+            // Wrap with Flexible or Expanded
+            _buildTimeHeaderColumn(index),
       ),
     );
   }
 
-  Widget buildRow() {
+  Widget _buildTimeHeaderColumn(int index) {
+    DateTime slotStart =
+        _dayStart.add(Duration(minutes: index * _timeSlotInterval));
+    int slotsPerHour = 60 ~/ _timeSlotInterval;
+
+    // Only display the hour every 4 slots
+    if (index % slotsPerHour == 0) {
+      return Flexible(
+        // Or Expanded
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 0),
+          child: Text(
+            DateFormat('HH').format(slotStart), // Display only the hour
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 11),
+          ),
+          width: _timeSlotWidth * 4,
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: Colors.grey[300]!),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
+  // --- Timeslots and Bookings ---
+  Widget _buildTimeSlotsRow() {
     return SizedBox(
-      width: _calculateTimeSlots() * _timeSlotWidth,
-      child: Stack(
-        // Use Stack to layer containers
-        alignment: Alignment.topLeft, // Adjust alignment as needed
-        children: [
-          _buildTimeGrid(), // This will be at the bottom layer
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimeLabels() {
-    return Container(
-      height: 20, // Set desired height of the time label row
-      child: Row(
-        children: List.generate(_calculateTimeSlots(), (index) {
-          DateTime slotStart =
-              _dayStart.add(Duration(minutes: index * _timeSlotInterval));
-          int slotsPerHour = 60 ~/ _timeSlotInterval;
-
-          return SizedBox(
-              width: _timeSlotWidth*2,
-              child: index % slotsPerHour == 0
-                  ? Text(DateFormat('HH').format(slotStart),
-                      style: const TextStyle(fontSize: 10))
-                  :  const SizedBox.shrink()	
-              );
-        }),
-      ),
-    );
-  }
-
-  Widget buildRoomHeader() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      child: Text(widget.room.name),
-    );
-  }
-
-  Widget _buildTimeGrid() {
-    return SizedBox(
-      height: 60,
+      height: 20, // Fixed height for clarity
       child: Row(
         children: List.generate(
           _calculateTimeSlots(),
-
-          (index) => _buildTimeSlotColumn(index), // Updated function
+          (index) => Flexible(child: _buildTimeSlotColumn(index)),
         ),
       ),
     );
@@ -106,98 +120,18 @@ class _BookingRowState extends State<BookingRow> {
   Widget _buildTimeSlotColumn(int index) {
     DateTime slotStart =
         _dayStart.add(Duration(minutes: index * _timeSlotInterval));
-    int slotsPerHour = 60 ~/ _timeSlotInterval;
 
     return SizedBox(
-      // Constrain the width
       width: _timeSlotWidth,
-      child: Column(children: [
-        Expanded(
-          // Ensures Timeslots take remaining space
-          child: Column(
-            children: [
-              for (int i = 0; i < slotsPerHour; i++) ...[
-                // Loop for each slot in hour
-                if (i > 0)
-                  const SizedBox(height: 20)
-                else
-                  const SizedBox.shrink(), // Spacing
-                SizedBox(
-                  width: _timeSlotWidth,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () => _handleTimeSlotTap(
-                        index * slotsPerHour + i), // Adjusted indexing
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey)),
-                        ),
-                        _buildBookingContainer(slotStart
-                            .add(Duration(minutes: i * _timeSlotInterval)))
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ]),
-    );
-  }
-
-  Widget _buildTimeSlotWidget(int index) {
-    DateTime slotStart =
-        _dayStart.add(Duration(minutes: index * _timeSlotInterval));
-    int slotsPerHour = 60 ~/ _timeSlotInterval;
-
-    String formattedHour = DateFormat('HH:mm').format(slotStart);
-
-    return SizedBox(
-      // Use SizedBox to constrain width
-      width: _timeSlotWidth,
-      child: Row(
-        // Use a Row for horizontal layout
+      child: Column(
         children: [
-          if (index % slotsPerHour == 0)
-            Text(
-              formattedHour.split(":")[0], // Display only the 'HH' part
-              style: const TextStyle(fontSize: 10),
-            ),
           Expanded(
-            // Expand to fill the remaining space
-            child: Column(
-              // Column for the timeslot
-              children: [
-                if (index % slotsPerHour == 0)
-                  Text(formattedHour.split(":")[1]) // Display only ':mm' part
-                else
-                  const SizedBox(
-                    height: 20,
-                  ),
-                SizedBox(
-                  width: _timeSlotWidth,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () => _handleTimeSlotTap(index),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey)),
-                        ),
-                        _buildBookingContainer(slotStart)
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            // Let the booking container fill the space
+            child: GestureDetector(
+              onTap: () => _handleTimeSlotTap(index),
+              child: _buildBookingContainer(slotStart),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -205,21 +139,32 @@ class _BookingRowState extends State<BookingRow> {
 
   Widget _buildBookingContainer(DateTime slotStart) {
     final booking = widget.bookings.firstWhereOrNull((b) =>
-        b.startTime.isAfter(slotStart) &&
+        b.startTime
+            .isAfter(slotStart.add(Duration(minutes: _timeSlotInterval))) &&
         b.endTime
             .isBefore(slotStart.add(Duration(minutes: _timeSlotInterval))));
 
     return booking != null
         ? Container(
             width: _timeSlotWidth,
-            height: 40,
+            height: 10,
             color: Theme.of(context).primaryColor,
           )
-        : const SizedBox.shrink();
+        : Container(
+            width: _timeSlotWidth,
+            height: 10,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey[300]!),
+                left: BorderSide(color: Colors.grey[300]!),
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+          );
   }
 
   int _calculateTimeSlots() {
-    return _dayEnd.difference(_dayStart).inMinutes ~/ _timeSlotInterval;
+    return 11 * 4;
   }
 
   void _handleTimeSlotTap(int index) {
@@ -228,8 +173,7 @@ class _BookingRowState extends State<BookingRow> {
 
     if (slotStart.isAfter(_dayStart.subtract(const Duration(minutes: 1))) &&
         slotStart.isBefore(_dayEnd)) {
-      context.push(
-          "/new-booking/${widget.room.name}/${DateFormat('HH:mm').format(slotStart)}");
+      log('Time slot tapped: $slotStart');
     } else {
       log('Time slot outside allowed range');
     }
