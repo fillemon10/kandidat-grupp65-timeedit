@@ -218,15 +218,15 @@ class SettingsScreenContent extends StatelessWidget {
                  */
                 Container(
                   alignment: Alignment.center,
-                  margin: EdgeInsets.all(8),
+                  //margin: EdgeInsets.all(8),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       /**
                        * View Rules button's container
                        */
                       Container(
-                        width: 160,
+                        width: 120,
                         height: 120,
                         alignment: Alignment.center,
                         child: SizedBox(
@@ -252,7 +252,7 @@ class SettingsScreenContent extends StatelessWidget {
                          * Report an Issue button's container
                          */
                       Container(
-                        width: 160,
+                        width: 120,
                         height: 120,
                         alignment: Alignment.center,
                         child: SizedBox(
