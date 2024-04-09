@@ -36,6 +36,7 @@ class FirebaseService {
           .map((doc) => Room.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
+
       // Group rooms by building
       final roomsByBuilding = <String, List<Room>>{};
       for (final room in rooms) {
@@ -43,6 +44,11 @@ class FirebaseService {
           roomsByBuilding[room.building] = [];
         }
         roomsByBuilding[room.building]!.add(room);
+      }
+
+      //order rooms by name
+      for (final building in roomsByBuilding.keys) {
+        roomsByBuilding[building]!.sort((a, b) => a.name.compareTo(b.name));
       }
 
       return roomsByBuilding;
