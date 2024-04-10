@@ -87,8 +87,6 @@ class _BookingTabBarState extends State<BookingTabBar>
       floatingActionButton: FloatingActionButton.extended(
         elevation: 1,
         onPressed: () {
-          // Navigate to the selected page
-          context.push('/new-booking/false/false');
         },
         label: const Text('New'),
         icon: const Icon(Icons.add),

@@ -13,7 +13,6 @@ import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
-import 'package:timeedit/screens/new-booking.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
@@ -96,11 +95,6 @@ final GoRouter _router = GoRouter(
         return FilterScreen();
       },
     ),
-    GoRoute(
-        path: '/new-booking/:room/:time',
-        builder: (context, state) => NewBookingScreen(
-            room: state.pathParameters['room'].toString(),
-            time: state.pathParameters['time'].toString())),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {

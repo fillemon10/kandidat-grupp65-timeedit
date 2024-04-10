@@ -1,9 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skeletonizer/skeletonizer.dart';
-import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
 import 'package:timeedit/widgets/booking_row.dart';
@@ -28,7 +26,7 @@ class BookingScreen extends StatelessWidget {
 class BuildingsTable extends StatefulWidget {
   final Map<String, dynamic> bookingData;
 
-  const BuildingsTable({Key? key, required this.bookingData}) : super(key: key);
+  const BuildingsTable({super.key, required this.bookingData});
 
   @override
   State<BuildingsTable> createState() => _BuildingsTableState();
@@ -61,11 +59,11 @@ class BuildingTable extends StatefulWidget {
   final Map<String, List<Booking>> bookingsByRoom;
 
   const BuildingTable({
-    Key? key,
+    super.key,
     required this.buildingName,
     required this.rooms,
     required this.bookingsByRoom,
-  }) : super(key: key);
+  });
 
   @override
   State<BuildingTable> createState() => _BuildingTableState();
@@ -89,24 +87,45 @@ class _BuildingTableState extends State<BuildingTable> {
       title: Text(widget.buildingName),
       onExpansionChanged: (value) => setState(() => _isExpanded = value),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var room in widget.rooms) ...[
-                    BookingRow(
-                      room: room,
-                      bookings: widget.bookingsByRoom[room.name] ?? [],
-                      scrollController:
-                          _sharedController, // Pass the controller here
-                    ),
-                  ]
-                ],
+        Card(
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var room in widget.rooms) ...[
+                        //if first, elseif odd else if even
+                        if (widget.rooms.indexOf(room) == 0)
+                          BookingRow(
+                            room: room,
+                            bookings: widget.bookingsByRoom[room.name] ?? [],
+                            first: true,
+                            odd: true,
+                          )
+                        else if (widget.rooms.indexOf(room) % 2 == 0)
+                          BookingRow(
+                            room: room,
+                            bookings: widget.bookingsByRoom[room.name] ?? [],
+                            first: false,
+                            odd: true,
+                          )
+                        else
+                          BookingRow(
+                            room: room,
+                            bookings: widget.bookingsByRoom[room.name] ?? [],
+                            first: false,
+                            odd: false,
+                          ),
+                      ]
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

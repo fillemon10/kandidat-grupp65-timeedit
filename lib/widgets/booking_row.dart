@@ -1,20 +1,24 @@
 import 'dart:developer';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
+import 'package:timeedit/widgets/new_booking.dart';
 
 class BookingRow extends StatefulWidget {
   final Room room;
   final List<Booking> bookings;
-  final ScrollController scrollController;
+  final bool first;
+  final bool odd;
 
   const BookingRow(
       {super.key,
       required this.room,
       required this.bookings,
-      required this.scrollController});
+      required this.first,
+      required this.odd});
 
   @override
   State<BookingRow> createState() => _BookingRowState();
@@ -37,27 +41,44 @@ class _BookingRowState extends State<BookingRow> {
         final double availableWidth = constraints.maxWidth;
         _timeSlotWidth = availableWidth / _calculateTimeSlots();
 
-        return SizedBox(
-          child: Card(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        return Container(
+          color: (widget.odd)
+              ? Colors.transparent
+              : Theme.of(context).primaryColor.withOpacity(0.1),
+          child: Row(
+
+              // Main Row for room name and timeslots
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Room Name Container
+                Container(
+                  alignment: Alignment.bottomLeft,
+                  width: 70, // Adjust width as needed
+                  margin: const EdgeInsets.only(right: 5),
+                  child: Column(
+                    // Wrap 'Text' in Column for alignment control
+                    mainAxisAlignment: MainAxisAlignment.end, // Align to bottom
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align to left
                     children: [
-                      Text(widget.room.name,
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      // Time Headers
-                      _buildTimeHeaderRow(),
-                      // Timeslots and Bookings
-                      Container(
-                        child: _buildTimeSlotsRow(),
-                      )
-                    ]),
-              ),
-            ]),
-          ),
+                      if (widget.first) SizedBox(height: 16, width: 75),
+                      Text(widget.room.name, style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                // Timeslots and Bookings (Flexible for dynamic width)
+                Flexible(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.first) _buildTimeHeaderRow(),
+                        // Timeslots and Bookings
+                        Container(
+                          child: _buildTimeSlotsRow(),
+                        )
+                      ]),
+                ),
+              ]),
         );
       },
     );
@@ -94,7 +115,7 @@ class _BookingRowState extends State<BookingRow> {
           width: _timeSlotWidth * 4,
           decoration: BoxDecoration(
             border: Border(
-              left: BorderSide(color: Colors.grey[300]!),
+              left: BorderSide(color: Theme.of(context).disabledColor),
             ),
           ),
         ),
@@ -107,7 +128,7 @@ class _BookingRowState extends State<BookingRow> {
   // --- Timeslots and Bookings ---
   Widget _buildTimeSlotsRow() {
     return SizedBox(
-      height: 20, // Fixed height for clarity
+      height: 22, // Fixed height for clarity
       child: Row(
         children: List.generate(
           _calculateTimeSlots(),
@@ -154,13 +175,15 @@ class _BookingRowState extends State<BookingRow> {
             width: _timeSlotWidth,
             height: 10,
             decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey[300]!),
-                left: BorderSide(color: Colors.grey[300]!),
-                bottom: BorderSide(color: Colors.grey[300]!),
-              ),
-            ),
-          );
+              // Full hour: All borders
+              border: (slotStart.minute == 0)
+                  ? Border(
+                      left: BorderSide(color: Theme.of(context).disabledColor),
+                    )
+                  :
+                  // no border
+                  Border(),
+            ));
   }
 
   int _calculateTimeSlots() {
@@ -173,7 +196,12 @@ class _BookingRowState extends State<BookingRow> {
 
     if (slotStart.isAfter(_dayStart.subtract(const Duration(minutes: 1))) &&
         slotStart.isBefore(_dayEnd)) {
-      log('Time slot tapped: $slotStart');
+      showModalBottomSheet(
+          showDragHandle: true,
+          useRootNavigator: true,
+          context: context,
+          builder: (context) =>
+              NewBookingBottomSheet(room: widget.room, startTime: slotStart));
     } else {
       log('Time slot outside allowed range');
     }
