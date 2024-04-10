@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
 import 'package:timeedit/blocs/authentication_bloc.dart';
 import 'package:timeedit/blocs/booking_bloc.dart';
 import 'package:timeedit/blocs/navigation_bloc.dart';
@@ -14,7 +15,9 @@ import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/new-booking.dart';
+import 'package:timeedit/screens/report-an-issue.dart';
 import 'package:timeedit/screens/settings.dart';
+import 'package:timeedit/screens/view-rules.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
 import 'package:timeedit/screens/filter.dart';
@@ -176,7 +179,14 @@ final GoRouter _router = GoRouter(
         path: '/first-come-first-served',
         builder: (context, state) => FirstComeScreen()),
     GoRoute(
-        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()),
+        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()
+    ),
+    GoRoute(
+      path: '/view-rules', builder: (context, state) => RulesScreen()
+    ),
+    GoRoute(
+      path: '/report-an-issue', builder: (context, state) => ReportIssueScreen()
+    ),
   ],
 );
 
