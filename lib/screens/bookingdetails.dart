@@ -31,7 +31,7 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      contentPadding: EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 6.0), // Adjust padding
+      contentPadding: EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 6.0),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -40,7 +40,10 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
               padding: const EdgeInsets.only(right: 24.0),
               child: Text(
                 'Booking ${_formatBookingTitle(widget.booking)}',
-                style: TextStyle(fontSize: 14.0),
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -52,14 +55,13 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
           ),
         ],
       ),
-      content: SingleChildScrollView( // Wrap the content in a SingleChildScrollView
+      content: SingleChildScrollView(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8, // Set the width to 80% of the screen width
+          width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Room Information:'),
               SizedBox(height: 8),
               Text('Name: ${widget.roomData['name']}'),
               Text('Building: ${widget.roomData['building']}'),
@@ -67,94 +69,122 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
               Text('Size: ${widget.roomData['size']}'),
               Text('Amenities: ${widget.roomData['amenities']}'),
               Text('Shared: ${widget.roomData['shared']}'),
-              SizedBox(height: 16),
+              SizedBox(height: 0),
               isEditing
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Edit booking time:'),
-                        SizedBox(height: 8),
+                        SizedBox(height: 16),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            ElevatedButton(
-                              onPressed: () => _selectStartTime(context),
-                              style: ButtonStyle( // Reduce button size
-                                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0)),
-                              ),
-                              child: Text(DateFormat('HH:mm').format(newStartTime)),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Start time:',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => _selectStartTime(context),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0)),
+                                  ),
+                                  child: Text(DateFormat('HH:mm').format(newStartTime)),
+                                ),
+                              ],
                             ),
-                            ElevatedButton(
-                              onPressed: () => _selectEndTime(context),
-                              style: ButtonStyle( // Reduce button size
-                                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0)),
-                              ),
-                              child: Text(DateFormat('HH:mm').format(newEndTime)),
+                            SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'End time:',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => _selectEndTime(context),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0)),
+                                  ),
+                                  child: Text(DateFormat('HH:mm').format(newEndTime)),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ],
                     )
                   : Container(),
-              SizedBox(height:0), // Add some space between the buttons and the bottom of the pop-up window
+              SizedBox(height: 0),
             ],
           ),
         ),
       ),
-      actionsPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust actions padding
+      actionsPadding: EdgeInsets.only(top: 16.0, bottom: 8.0),
       actions: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () {
                 setState(() {
                   if (isEditing) {
-                    // Save changes
                     _updateBooking();
                     isEditing = false;
                   } else {
-                    // Enable editing
                     isEditing = true;
                   }
                 });
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
+                foregroundColor: MaterialStateProperty.all(Colors.black),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)),
               ),
               child: Text(isEditing ? 'Save Changes' : 'Edit Booking'),
             ),
-            SizedBox(width: 8),
+            SizedBox(width: 16),
             ElevatedButton(
               onPressed: () {
-                // Show confirmation dialog before deleting booking
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
                       backgroundColor: Color(0xFFBFD5BC),
-                      title: Text('Cancel Booking'),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Cancel Booking'),
+                          IconButton(
+                            icon: Icon(Icons.close, color: Colors.black),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
                       content: Text('Are you sure you want to cancel this booking?'),
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // Close confirmation dialog
+                            Navigator.of(context).pop();
                           },
-                          child: Text('No'),
+                          child: Text('No', style: TextStyle(color: Colors.black)),
                         ),
                         TextButton(
                           onPressed: () {
-                            // Delete booking document from Firestore
                             FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).delete().then((_) {
-                              Navigator.of(context).pop(); // Close confirmation dialog
-                              Navigator.of(context).pop(); // Close booking details dialog
-                              // No need to explicitly refresh the list as the stream builder will automatically rebuild the list
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
                             }).catchError((error) {
                               print('Failed to delete booking: $error');
-                              // Handle error
                             });
                           },
-                          child: Text('Yes'),
+                          child: Text('Yes', style: TextStyle(color: Colors.black)),
                         ),
                       ],
                     );
@@ -163,6 +193,8 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Color(0xFFEFECEC)),
+                foregroundColor: MaterialStateProperty.all(Colors.black),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)),
               ),
               child: Text('Cancel Booking'),
             ),
@@ -172,97 +204,84 @@ class _BookingDetailsDialogState extends State<BookingDetailsDialog> {
     );
   }
 
- void _selectStartTime(BuildContext context) async {
-  final picked = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.fromDateTime(newStartTime),
-    // Set to 24-hour format
-    builder: (BuildContext context, Widget? child) {
-      return MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      );
-    },
-  );
-  if (picked != null) {
-    setState(() {
-      newStartTime = DateTime(newStartTime.year, newStartTime.month, newStartTime.day, picked.hour, picked.minute);
-    });
-  }
-}
-
-void _selectEndTime(BuildContext context) async {
-  final picked = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.fromDateTime(newEndTime),
-    // Set to 24-hour format
-    builder: (BuildContext context, Widget? child) {
-      return MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      );
-    },
-  );
-  if (picked != null) {
-    setState(() {
-      newEndTime = DateTime(newEndTime.year, newEndTime.month, newEndTime.day, picked.hour, picked.minute);
-    });
-  }
-}
-
-
-void _updateBooking() async {
-  // Fetch all bookings for the room
-  QuerySnapshot roomBookingsSnapshot = await FirebaseFirestore.instance
-      .collection('bookings')
-      .where('roomName', isEqualTo: widget.booking['roomName'])
-      .get();
-
-  // Convert the query snapshot to a list of bookings
-  List<DocumentSnapshot> roomBookings = roomBookingsSnapshot.docs;
-
-  // Exclude the current booking from the list
-  roomBookings.removeWhere((doc) => doc.id == widget.booking.id);
-
-  // Check for overlapping bookings
-  bool hasOverlappingBookings = roomBookings.any((doc) {
-    DateTime startTime = doc['startTime'].toDate();
-    DateTime endTime = doc['endTime'].toDate();
-    return newStartTime.isBefore(endTime) && newEndTime.isAfter(startTime);
-  });
-
-  if (hasOverlappingBookings) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('The room is already booked for the new time slot.'),
-        backgroundColor: Colors.red,
-      ),
+  void _selectStartTime(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(newStartTime),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
-  } else {
-    // Check if the new booking duration exceeds the maximum allowed duration
-    if (newEndTime.difference(newStartTime).inHours <= 4) {
-      FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).update({
-        'startTime': newStartTime,
-        'endTime': newEndTime,
-      }).then((_) {
-        Navigator.of(context).pop(); // Close booking details dialog
-      }).catchError((error) {
-        print('Failed to update booking: $error');
-        // Handle error
+    if (picked != null) {
+      setState(() {
+        newStartTime = DateTime(newStartTime.year, newStartTime.month, newStartTime.day, picked.hour, picked.minute);
       });
-    } else {
+    }
+  }
+
+  void _selectEndTime(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(newEndTime),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        newEndTime = DateTime(newEndTime.year, newEndTime.month, newEndTime.day, picked.hour, picked.minute);
+      });
+    }
+  }
+
+  void _updateBooking() async {
+    QuerySnapshot roomBookingsSnapshot = await FirebaseFirestore.instance
+        .collection('bookings')
+        .where('roomName', isEqualTo: widget.booking['roomName'])
+        .get();
+
+    List<DocumentSnapshot> roomBookings = roomBookingsSnapshot.docs;
+    roomBookings.removeWhere((doc) => doc.id == widget.booking.id);
+
+    bool hasOverlappingBookings = roomBookings.any((doc) {
+      DateTime startTime = doc['startTime'].toDate();
+      DateTime endTime = doc['endTime'].toDate();
+      return newStartTime.isBefore(endTime) && newEndTime.isAfter(startTime);
+    });
+
+    if (hasOverlappingBookings) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Your booking can be 4 hours maximum.'),
+          content: Text('The room is already booked for the new time slot.'),
           backgroundColor: Colors.red,
         ),
       );
+    } else {
+      if (newEndTime.difference(newStartTime).inHours <= 4) {
+        FirebaseFirestore.instance.collection('bookings').doc(widget.booking.id).update({
+          'startTime': newStartTime,
+          'endTime': newEndTime,
+        }).then((_) {
+          Navigator.of(context).pop();
+        }).catchError((error) {
+          print('Failed to update booking: $error');
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Your booking can be 4 hours maximum.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
-}
-
-
-
 
   String _formatBookingTitle(DocumentSnapshot booking) {
     DateTime startTime = booking['startTime'].toDate();
