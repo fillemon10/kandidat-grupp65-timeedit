@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
 
 abstract class BookingEvent extends Equatable {
@@ -196,5 +197,17 @@ class NewBookingBloc extends Bloc<BookingEvent, BookingState> {
     int minutes =
         ((time.hour * 60) + time.minute) ~/ 15 * 15; // Integer division by 15
     return TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
+  }
+
+  // add booking to firebase
+  Future<void> addBooking(Booking booking) async 
+  {
+    try {
+      // Add booking to Firestore
+      // await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+    } catch (e) {
+      log('Error adding booking: $e');
+      rethrow;
+    }
   }
 }
