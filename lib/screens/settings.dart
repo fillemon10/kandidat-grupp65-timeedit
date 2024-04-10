@@ -31,6 +31,8 @@ class SettingsScreenContent extends StatelessWidget {
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    double buttonSize = screenWidth * 0.4;
+
 
     return Scaffold(
       /**
@@ -217,7 +219,7 @@ class SettingsScreenContent extends StatelessWidget {
                  * A row container to hold the bottom-most 2 buttons on the screen.
                  */
                 Container(
-                  alignment: Alignment.center,
+                  //alignment: Alignment.center,
                   //margin: EdgeInsets.all(8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,52 +228,43 @@ class SettingsScreenContent extends StatelessWidget {
                        * View Rules button's container
                        */
                       Container(
-                        width: 120,
-                        height: 120,
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: FloatingActionButton.extended(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            heroTag: 'viewRulesButton',
-                            elevation: 2,
-                            onPressed: () {
-                              print('View Rules Clicked!');
-                            },
-                            label: const Text(
-                              'View\nRules',
-                              textAlign: TextAlign.center,
-                              style:
-                                  TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
-                            ),
+                        width: buttonSize,
+                        height: buttonSize,
+                        child: FloatingActionButton.extended(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          heroTag: 'viewRulesButton',
+                          elevation: 2,
+                          onPressed: () {
+                            print('View Rules Clicked!');
+                          },
+                          label: const Text(
+                            'View\nRules',
+                            textAlign: TextAlign.center,
+                            style:
+                                TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
                           ),
                         ),
                       ),
+
                       /**
                          * Report an Issue button's container
                          */
                       Container(
-                        width: 120,
-                        height: 120,
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: FloatingActionButton.extended(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            heroTag: 'reportAnIssueButton',
-                            elevation: 2,
-                            
-                            onPressed: () {
-                              print('Report an Issue Clicked!');
-                            },
-                            label: const Text(
-                              'Report an\nIssue',
-                              textAlign: TextAlign.center,
-                              style:
-                                  TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
-                            ),
+                        width: buttonSize,
+                        height: buttonSize,
+                        child: FloatingActionButton.extended(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          heroTag: 'reportAnIssueButton',
+                          elevation: 2,
+                          
+                          onPressed: () {
+                            print('Report an Issue Clicked!');
+                          },
+                          label: const Text(
+                            'Report an\nIssue',
+                            textAlign: TextAlign.center,
+                            style:
+                                TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
                           ),
                         ),
                       ),
@@ -285,6 +278,7 @@ class SettingsScreenContent extends StatelessWidget {
       )
     );
   }
+
 }
 
 class SwitchStates extends ChangeNotifier {
@@ -336,5 +330,5 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget> {
         );
       },
     );
-  }
+  }  
 }
