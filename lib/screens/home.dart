@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart'; // Import the intl package for DateFormat
 import 'package:go_router/go_router.dart';
-import 'package:timeedit/screens/mybookings.dart';
-import 'package:timeedit/screens/firstcome.dart';
-import 'package:timeedit/screens/favourites.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -17,14 +15,8 @@ class HomeScreen extends StatelessWidget {
         children: [
           Expanded(
             child: ListView(
-              children: const [
-                TitleSection(
-                  title: 'Looking for a room right now?',
-                ),
-                CardSection(
-                  title: 'Book a room',
-                  subtitle: 'Find and book a room now',
-                ),
+              children: [
+                TitleSection(), // This is the correct placement of TitleSection
               ],
             ),
           ),
@@ -82,104 +74,155 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-
 class TitleSection extends StatelessWidget {
-  final String title;
-
-  const TitleSection({required this.title});
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.headline6,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFBFD5BC), // Background color for the titles
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)), // Rounded top corners
+            ),
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      'Room',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 46.0),
+                    child: Text(
+                      'Building',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      'Available until',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('rooms').limit(8).snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+
+              if (snapshot.data!.docs.isEmpty) {
+                return Center(child: Text('No rooms available.'));
+              }
+
+              final rooms = snapshot.data!.docs
+                  .map((DocumentSnapshot document) {
+                Map<String, dynamic> roomData = document.data() as Map<String, dynamic>;
+                return _buildRoomItem(roomData['name'], roomData['building'], roomData['availableUntil']);
+              })
+                  .toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(rooms.length, (index) {
+                  final room = rooms[index];
+                  final color = index.isEven ? Color(0xFFD9D9D9) : Color(0xFFEFECEC);
+                  return Container(
+                    color: color,
+                    child: room,
+                  );
+                }),
+              );
+            },
+          ),
+          SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              // Navigate to a page showing all rooms
+              context.push('/all-rooms');
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)),
+              foregroundColor: MaterialStateProperty.all(Colors.black),
+              padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 16)),
+            ),
+            child: Text('See more rooms'),
+          ),
+        ],
       ),
     );
   }
-}
 
-class CardSection extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  Widget _buildRoomItem(String? room, String? building, dynamic availableUntil) {
+    // Handle null values or provide default values
+    room ??= 'Unknown Room';
+    building ??= 'Unknown Building';
 
-  const CardSection({
-    required this.title,
-    required this.subtitle,
-  });
+    String availableUntilText = 'All day!';
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Card(
-        child: Column(
-          children: [
-            ListTile(
-              title: Text(title),
-              subtitle: Text(subtitle),
+    if (availableUntil != null) {
+      availableUntilText = DateFormat('HH:mm').format(availableUntil.toDate() as DateTime);
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              room,
+              style: TextStyle(fontSize: 14.0),
             ),
-            DataTableExample(),
-          ],
-        ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: EdgeInsets.only(left: 42.0),
+              child: Text(
+                building,
+                style: TextStyle(fontSize: 14.0),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              availableUntilText,
+              style: TextStyle(fontSize: 14.0),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class DataTableExample extends StatelessWidget {
-  const DataTableExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DataTable(
-      columns: const <DataColumn>[
-        DataColumn(
-          label: Expanded(
-            child: Text(
-              'Room',
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Text(
-              'House',
-            ),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Text(
-              'Available until',
-            ),
-          ),
-        ),
-      ],
-      rows: const <DataRow>[
-        DataRow(
-          cells: <DataCell>[
-            DataCell(Text('Sarah')),
-            DataCell(Text('19')),
-            DataCell(Text('Student')),
-          ],
-        ),
-        DataRow(
-          cells: <DataCell>[
-            DataCell(Text('Janine')),
-            DataCell(Text('43')),
-            DataCell(Text('Professor')),
-          ],
-        ),
-        DataRow(
-          cells: <DataCell>[
-            DataCell(Text('William')),
-            DataCell(Text('27')),
-            DataCell(Text('Associate Professor')),
-          ],
-        ),
-      ],
     );
   }
 }
