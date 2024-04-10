@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,11 +16,11 @@ import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/settings.dart';
+import 'package:timeedit/screens/sign-in.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
 import 'package:timeedit/screens/filter.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:timeedit/blocs/settings_bloc.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure widgets are initialized
@@ -29,8 +31,6 @@ void main() async {
       BlocProvider<AuthenticationBloc>(
           create: (context) => AuthenticationBloc()),
       BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
-      BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
-      BlocProvider<SettingsBloc>(create: (context) => SettingsBloc())
     ],
     child: const MyApp(),
   ));
@@ -42,6 +42,14 @@ final _sectionNavigatorKey = GlobalKey<NavigatorState>();
 final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  redirect: (context, state) {
+    final isLoggedIn = context.read<AuthenticationBloc>().state ==
+        AuthenticationState.authenticated;
+    // Redirect to 'sign-in' if not logged in
+    if (!isLoggedIn) {
+      return '/sign-in';
+    }
+  },
   routes: <RouteBase>[
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -101,41 +109,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {
-        return SignInScreen(
-          showPasswordVisibilityToggle: true,
-          actions: [
-            ForgotPasswordAction(((context, email) {
-              final uri = Uri(
-                path: 'sign-in/forgot-password',
-                queryParameters: <String, String?>{
-                  'email': email,
-                },
-              );
-              context.push(uri.toString());
-            })),
-            AuthStateChangeAction(((context, state) {
-              final user = switch (state) {
-                SignedIn state => state.user,
-                UserCreated state => state.credential.user,
-                _ => null
-              };
-              if (user == null) {
-                return;
-              }
-              if (state is UserCreated) {
-                user.updateDisplayName(user.email!.split('@')[0]);
-              }
-              if (!user.emailVerified) {
-                user.sendEmailVerification();
-                const snackBar = SnackBar(
-                    content: Text(
-                        'Please check your email to verify your email address'));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              }
-              context.go('/');
-            })),
-          ],
-        );
+        return CustomSignInScreen();
       },
       routes: [
         GoRoute(
@@ -179,30 +153,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, themeState) {
-      return MaterialApp.router(
-        routerConfig: _router,
-        title: 'TimeEdit',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Color.fromRGBO(191, 213, 188, 1),
-            background: Color(0xFFEFECEC),
-            primary: Color(0xFFBFD5BC),
-            primaryContainer: Color(0xFFF1F1F1),
-            brightness: Brightness.light,
-          ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: 'TimeEdit',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(191, 213, 188, 1),
+          brightness: Brightness.light,
         ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Color.fromRGBO(191, 213, 188, 1),
-            brightness: Brightness.dark,
-          ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(191, 213, 188, 1),
+          brightness: Brightness.dark,
         ),
-        themeMode: themeState.themeMode,
-      );
-    });
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      themeMode: ThemeMode.system,
+    );
   }
 }

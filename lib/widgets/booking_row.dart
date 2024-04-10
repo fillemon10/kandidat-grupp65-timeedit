@@ -200,6 +200,7 @@ class _BookingRowState extends State<BookingRow> {
           showDragHandle: true,
           useRootNavigator: true,
           context: context,
+          
           builder: (context) =>
               NewBookingBottomSheet(room: widget.room, startTime: slotStart));
     } else {
