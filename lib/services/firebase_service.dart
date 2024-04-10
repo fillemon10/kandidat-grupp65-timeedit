@@ -60,7 +60,6 @@ class FirebaseService {
 
   static Future<Map<String, List<Booking>>> groupBookingsByRoom(
       DateTime selectedDate) async {
-    log('groupBookingsByRoom: $selectedDate');
     try {
       // Calculate the start and end of the selected day
       DateTime startOfDay =

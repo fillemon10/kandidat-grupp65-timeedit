@@ -199,6 +199,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
+          tertiary: Color.fromRGBO(161, 39, 39, 1),
           brightness: Brightness.light,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -206,6 +207,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
+          tertiary: Color.fromRGBO(161, 39, 39, 1),
           brightness: Brightness.dark,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,

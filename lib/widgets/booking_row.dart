@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
@@ -162,26 +163,35 @@ class _BookingRowState extends State<BookingRow> {
       return booking.startTime.isBefore(slotStart) &&
           booking.endTime.isAfter(slotStart);
     });
-
-    return booking != null
-        ? Container(
-            width: _timeSlotWidth,
-            height: 10,
-            color: Theme.of(context).primaryColor,
-          )
-        : Container(
-            width: _timeSlotWidth,
-            height: 10,
-            decoration: BoxDecoration(
-              // Full hour: All borders
-              border: (slotStart.minute == 0)
-                  ? Border(
-                      left: BorderSide(color: Theme.of(context).disabledColor),
-                    )
-                  :
-                  // no border
-                  Border(),
-            ));
+    if (booking != null) {
+      if (booking.userId == FirebaseAuth.instance.currentUser!.uid) {
+        return Container(
+          width: _timeSlotWidth,
+          height: 10,
+          color: Theme.of(context).colorScheme.secondary,
+        );
+      } else {
+        return Container(
+          width: _timeSlotWidth,
+          height: 10,
+          color: Theme.of(context).colorScheme.tertiary,
+        );
+      }
+    } else {
+      return Container(
+          width: _timeSlotWidth,
+          height: 10,
+          decoration: BoxDecoration(
+            // Full hour: Add left border
+            border: (slotStart.minute == 0)
+                ? Border(
+                    left: BorderSide(color: Theme.of(context).disabledColor),
+                  )
+                :
+                // no border
+                Border(),
+          ));
+    }
   }
 
   int _calculateTimeSlots() {

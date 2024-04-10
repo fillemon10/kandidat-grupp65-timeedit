@@ -77,6 +77,10 @@ class _BookingTabBarState extends State<BookingTabBar>
     }
   }
 
+  void refresh() {
+    context.read<BookingBloc>().add(FetchBookingData(_selectedDate));
+  }
+
   final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
 
   @override
@@ -86,8 +90,7 @@ class _BookingTabBarState extends State<BookingTabBar>
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         elevation: 1,
-        onPressed: () {
-        },
+        onPressed: () {},
         label: const Text('New'),
         icon: const Icon(Icons.add),
       ),
@@ -116,7 +119,7 @@ class _BookingTabBarState extends State<BookingTabBar>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<BookingBloc>().add(FetchBookingData(_selectedDate));
+              refresh();
             },
           ),
         ],
