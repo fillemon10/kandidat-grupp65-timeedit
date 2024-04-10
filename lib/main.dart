@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -43,12 +44,19 @@ final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   redirect: (context, state) {
-    final isLoggedIn = context.read<AuthenticationBloc>().state ==
+    var isLoggedIn = context.read<AuthenticationBloc>().state ==
         AuthenticationState.authenticated;
-    // Redirect to 'sign-in' if not logged in
-    if (!isLoggedIn && state.uri.toString() != '/sign-in/forgot-password') {
+    // check if user is authenticated in firebaseAuth
+    if (FirebaseAuth.instance.currentUser != null) {
+      isLoggedIn = true;
+    }
+
+    // Redirect to 'sign-in' if not logged in and not on 'sign-in' or any 'forgot-password/*' route
+    if (!isLoggedIn &&
+        !state.uri.toString().startsWith('/sign-in/forgot-password')) {
       return '/sign-in';
     }
+    return null;
   },
   routes: <RouteBase>[
     StatefulShellRoute.indexedStack(
@@ -114,11 +122,11 @@ final GoRouter _router = GoRouter(
           actions: [
             ForgotPasswordAction(((context, email) {
               final uri = Uri(
-                path: 'sign-in/forgot-password',
-                queryParameters: <String, String?>{
-                  'email': email,
-                },
+                // if email is "" it will be "email"
+                path:
+                    '/sign-in/forgot-password/${email!.isEmpty ? ' ' : email}',
               );
+
               context.push(uri.toString());
             })),
             AuthStateChangeAction(((context, state) {
@@ -147,13 +155,10 @@ final GoRouter _router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: 'sign-in/forgot-password',
+          path: 'forgot-password/:email',
           builder: (context, state) {
-            final arguments = state.uri.queryParameters;
             return ForgotPasswordScreen(
-              email: arguments['email'],
-              headerMaxExtent: 200,
-            );
+                email: state.pathParameters['email'].toString());
           },
         ),
       ],

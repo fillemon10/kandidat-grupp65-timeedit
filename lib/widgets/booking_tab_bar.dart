@@ -112,7 +112,13 @@ class _BookingTabBarState extends State<BookingTabBar>
             icon: const Icon(Icons.filter_alt_outlined),
             onPressed: () =>
                 _key.currentState!.openDrawer(), // <-- Opens drawer
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<BookingBloc>().add(FetchBookingData(_selectedDate));
+            },
+          ),
         ],
       ),
       body: Column(

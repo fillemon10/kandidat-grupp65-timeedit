@@ -1,7 +1,5 @@
 import 'dart:developer';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
@@ -159,11 +157,11 @@ class _BookingRowState extends State<BookingRow> {
   }
 
   Widget _buildBookingContainer(DateTime slotStart) {
-    final booking = widget.bookings.firstWhereOrNull((b) =>
-        b.startTime
-            .isAfter(slotStart.add(Duration(minutes: _timeSlotInterval))) &&
-        b.endTime
-            .isBefore(slotStart.add(Duration(minutes: _timeSlotInterval))));
+    // Check if there is a booking in this timeslot (15 minutes)
+    final booking = widget.bookings.firstWhereOrNull((booking) {
+      return booking.startTime.isBefore(slotStart) &&
+          booking.endTime.isAfter(slotStart);
+    });
 
     return booking != null
         ? Container(
@@ -200,7 +198,6 @@ class _BookingRowState extends State<BookingRow> {
           showDragHandle: true,
           useRootNavigator: true,
           context: context,
-          
           builder: (context) =>
               NewBookingBottomSheet(room: widget.room, startTime: slotStart));
     } else {

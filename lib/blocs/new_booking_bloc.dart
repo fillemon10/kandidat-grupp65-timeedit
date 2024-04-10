@@ -1,19 +1,24 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
+import 'package:timeedit/blocs/booking_bloc.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
+import 'package:timeedit/services/firebase_service.dart';
 
-abstract class BookingEvent extends Equatable {
-  const BookingEvent();
+abstract class NewBookingEvent extends Equatable {
+  const NewBookingEvent();
 
   @override
   List<Object> get props => [];
 }
 
-class StartDateSelected extends BookingEvent {
+class StartDateSelected extends NewBookingEvent {
   final DateTime startDate;
 
   const StartDateSelected(this.startDate);
@@ -22,7 +27,7 @@ class StartDateSelected extends BookingEvent {
   List<Object> get props => [startDate];
 }
 
-class StartTimeSelected extends BookingEvent {
+class StartTimeSelected extends NewBookingEvent {
   final TimeOfDay startTime;
 
   const StartTimeSelected(this.startTime);
@@ -31,7 +36,7 @@ class StartTimeSelected extends BookingEvent {
   List<Object> get props => [startTime];
 }
 
-class EndTimeSelected extends BookingEvent {
+class EndTimeSelected extends NewBookingEvent {
   final TimeOfDay endTime;
 
   const EndTimeSelected(this.endTime);
@@ -40,7 +45,7 @@ class EndTimeSelected extends BookingEvent {
   List<Object> get props => [endTime];
 }
 
-class RoomSelected extends BookingEvent {
+class RoomSelected extends NewBookingEvent {
   final Room room;
 
   const RoomSelected(this.room);
@@ -49,23 +54,24 @@ class RoomSelected extends BookingEvent {
   List<Object> get props => [room];
 }
 
-class BookingSubmitted extends BookingEvent {}
+class BookingSubmitted extends NewBookingEvent {}
 
-abstract class BookingState extends Equatable {
+abstract class NewBookingState extends Equatable {
   final DateTime? startDate;
   final TimeOfDay? startTime;
   final TimeOfDay? endTime;
   final Room? room;
 
-  const BookingState({this.startDate, this.startTime, this.endTime, this.room});
+  const NewBookingState(
+      {this.startDate, this.startTime, this.endTime, this.room});
 
   @override
   List<Object?> get props => [startDate, startTime, endTime, room];
 }
 
-class BookingInitial extends BookingState {}
+class BookingInitial extends NewBookingState {}
 
-class BookingInProgress extends BookingState {
+class BookingInProgress extends NewBookingState {
   const BookingInProgress({
     required DateTime startDate,
     required TimeOfDay startTime,
@@ -78,9 +84,9 @@ class BookingInProgress extends BookingState {
             room: room);
 }
 
-class BookingSuccess extends BookingState {}
+class BookingSuccess extends NewBookingState {}
 
-class NewBookingBloc extends Bloc<BookingEvent, BookingState> {
+class NewBookingBloc extends Bloc<NewBookingEvent, NewBookingState> {
   NewBookingBloc() : super(BookingInitial()) {
     on<StartDateSelected>((event, emit) => emit(BookingInProgress(
           startDate: event.startDate,
@@ -144,10 +150,23 @@ class NewBookingBloc extends Bloc<BookingEvent, BookingState> {
           state.endTime != null &&
           isTimeOfDayBefore(state.endTime!, state.startTime!)) {
         // Handle error: Show a message, adjust the times, or prevent submission
-        print('Error: End time cannot be before start time');
+        log('Error: End time cannot be before start time');
       } else {
-        // Handle booking logic (API call, etc.)
+        final booking = Booking(
+          startTime: DateTime(
+              state.startDate!.year,
+              state.startDate!.month,
+              state.startDate!.day,
+              state.startTime!.hour,
+              state.startTime!.minute),
+          endTime: DateTime(state.startDate!.year, state.startDate!.month,
+              state.startDate!.day, state.endTime!.hour, state.endTime!.minute),
+          roomName: state.room!.name,
+          userId: FirebaseAuth.instance.currentUser!.uid,
+        );
+        await addBooking(booking);
         emit(BookingSuccess());
+
       }
     });
 
@@ -200,11 +219,9 @@ class NewBookingBloc extends Bloc<BookingEvent, BookingState> {
   }
 
   // add booking to firebase
-  Future<void> addBooking(Booking booking) async 
-  {
+  Future<void> addBooking(Booking booking) async {
     try {
-      // Add booking to Firestore
-      // await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+      await FirebaseService.addBooking(booking);
     } catch (e) {
       log('Error adding booking: $e');
       rethrow;

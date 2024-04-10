@@ -90,4 +90,13 @@ class FirebaseService {
       rethrow;
     }
   }
+
+  static Future<void> addBooking(Booking booking) async {
+    try {
+      await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+    } catch (e) {
+      log('Error adding booking: $e');
+      rethrow;
+    }
+  }
 }

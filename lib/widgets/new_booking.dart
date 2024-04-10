@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:timeedit/blocs/booking_bloc.dart';
 import 'package:timeedit/models/room.dart';
 import 'package:timeedit/blocs/new_booking_bloc.dart';
 
@@ -50,7 +52,6 @@ class _NewBookingBottomSheetState extends State<NewBookingBottomSheet> {
     if (pickedTime != null && pickedTime != _startTime) {
       _newBookingBloc.add(StartTimeSelected(pickedTime));
     }
-
   }
 
   Future<void> _selectEndTime(BuildContext context) async {
@@ -117,8 +118,12 @@ class _NewBookingBottomSheetState extends State<NewBookingBottomSheet> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => _newBookingBloc,
-      child: BlocBuilder<NewBookingBloc, BookingState>(
+      child: BlocBuilder<NewBookingBloc, NewBookingState>(
         builder: (context, state) {
+          if (state is BookingSuccess) {
+            context.pop();
+            context.read<BookingBloc>().add(FetchBookingData(_date));
+          }
           return Container(
             width: double.infinity,
             padding: EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 16),
@@ -143,7 +148,8 @@ class _NewBookingBottomSheetState extends State<NewBookingBottomSheet> {
                               ActionChip(
                                 avatar: Icon(Icons.meeting_room),
                                 label: Text(state is BookingInProgress
-                                    ? state.room?.name ?? 'Select' : 'Select'),
+                                    ? state.room?.name ?? 'Select'
+                                    : 'Select'),
                                 onPressed: () => _selectRoom(),
                               ),
                             ],
@@ -280,7 +286,11 @@ class _NewBookingBottomSheetState extends State<NewBookingBottomSheet> {
                   children: [
                     // ... other widgets on the left
                     Spacer(), // Occupies all available space, pushing the button to the right
-                    FilledButton(onPressed: () => {}, child: Text('Book')),
+                    FilledButton(
+                        onPressed: () => {
+                              _newBookingBloc.add(BookingSubmitted()),
+                            },
+                        child: Text('Book')),
                   ],
                 ),
               ],
