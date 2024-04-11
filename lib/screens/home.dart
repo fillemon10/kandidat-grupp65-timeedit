@@ -79,8 +79,8 @@ class TitleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Container( // Wrap Column with Container
-        height: 400, // Set a finite height for the container
+      child: Container(
+        height: 400,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -88,11 +88,11 @@ class TitleSection extends StatelessWidget {
               'Looking for a free room right now?',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
             ),
-            SizedBox(height: 8), // Add spacing between text and green box
+            SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                color: Color(0xFFBFD5BC), // Background color for the titles
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)), // Rounded top corners
+                color: Color(0xFFBFD5BC),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
               ),
               padding: EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -104,7 +104,7 @@ class TitleSection extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
                         'Room',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black),
                       ),
                     ),
                   ),
@@ -114,7 +114,7 @@ class TitleSection extends StatelessWidget {
                       padding: EdgeInsets.only(left: 46.0),
                       child: Text(
                         'Building',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black),
                       ),
                     ),
                   ),
@@ -124,7 +124,7 @@ class TitleSection extends StatelessWidget {
                       padding: EdgeInsets.only(right: 16.0),
                       child: Text(
                         'Available until',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black), // Text color
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.black),
                         textAlign: TextAlign.right,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -148,12 +148,10 @@ class TitleSection extends StatelessWidget {
                   return Center(child: Text('No rooms available.'));
                 }
 
-                final rooms = snapshot.data!.docs
-                    .map((DocumentSnapshot document) {
+                final rooms = snapshot.data!.docs.map((DocumentSnapshot document) {
                   Map<String, dynamic> roomData = document.data() as Map<String, dynamic>;
-                  return _buildRoomItem(roomData['name'], roomData['building'], roomData['availableUntil']);
-                })
-                    .toList();
+                  return _buildRoomItem(roomData['name'], roomData['building']);
+                }).toList();
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -169,9 +167,9 @@ class TitleSection extends StatelessWidget {
               },
             ),
             SizedBox(height: 8),
-            Spacer(), // Add spacer to move button to the right edge
+            Spacer(),
             Container(
-              alignment: Alignment.centerRight, // Align the button to the right
+              alignment: Alignment.centerRight,
               child: TextButton.icon(
                 onPressed: () {
                   // Navigate to a page showing all rooms
@@ -180,7 +178,7 @@ class TitleSection extends StatelessWidget {
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Color(0xFFBFD5BC)),
                   foregroundColor: MaterialStateProperty.all(Colors.black),
-                  padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 12, horizontal: 20)), // Adjust button padding
+                  padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 12, horizontal: 20)),
                 ),
                 icon: Icon(Icons.arrow_forward),
                 label: Text('See more rooms'),
@@ -192,52 +190,121 @@ class TitleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildRoomItem(String? room, String? building, dynamic availableUntil) {
-    // Handle null values or provide default values
-    room ??= 'Unknown Room';
-    building ??= 'Unknown Building';
+  Widget _buildRoomItem(String? room, String? building) {
+  room ??= 'Unknown Room';
+  building ??= 'Unknown Building';
 
-    String availableUntilText = 'All day!';
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('bookings').where('roomName', isEqualTo: room).snapshots(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      }
 
-    if (availableUntil != null) {
-      availableUntilText = DateFormat('HH:mm').format(availableUntil.toDate() as DateTime);
-    }
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
 
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              room,
-              style: TextStyle(fontSize: 14.0),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: EdgeInsets.only(left: 42.0),
-              child: Text(
-                building,
-                style: TextStyle(fontSize: 14.0),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Text(
-              availableUntilText,
-              style: TextStyle(fontSize: 14.0),
-              textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      final bookings = snapshot.data!.docs;
+
+      if (bookings.isEmpty) {
+        return _buildRoomInfo(room, building, null);
+      }
+
+      final sortedBookings = bookings.map((DocumentSnapshot document) {
+        Map<String, dynamic> bookingData = document.data() as Map<String, dynamic>;
+        print('Booking data: $bookingData');
+        return {
+          'startTime': bookingData['startTime'].toDate() as DateTime?,
+          'endTime': bookingData['endTime'].toDate() as DateTime?,
+        };
+      }).toList()
+        ..sort((a, b) {
+          final aEndTime = a['endTime'];
+          final bEndTime = b['endTime'];
+          if (aEndTime != null && bEndTime != null) {
+            return aEndTime.compareTo(bEndTime);
+          }
+          // Handle the case when either endTime is null
+          return 0;
+        });
+
+      print('Sorted bookings: $sortedBookings');
+
+      final currentDateTime = DateTime.now();
+      DateTime? nextBookingStartTime;
+
+      for (var i = 0; i < sortedBookings.length; i++) {
+        final startTime = sortedBookings[i]['startTime'] as DateTime;
+        final endTime = sortedBookings[i]['endTime'] as DateTime;
+
+        if (currentDateTime.isBefore(startTime)) {
+          nextBookingStartTime = startTime;
+          break;
+        }
+      }
+
+      if (nextBookingStartTime != null) {
+        final timeDifference = nextBookingStartTime.difference(currentDateTime);
+        final hours = timeDifference.inHours;
+        final minutes = timeDifference.inMinutes.remainder(60);
+  
+        final timeUntilNextBooking = hours > 0
+            ? 'Free for: ${hours}h ${minutes}m'
+            : 'Free for: ${minutes}m';
+
+        return _buildRoomInfo(room, building, DateTime.now().add(timeDifference));
+      } else {
+        return _buildRoomInfo(room, building, null);
+      }
+    },
+  );
 }
 
+
+  Widget _buildRoomInfo(String? room, String? building, DateTime? availableUntil) {
+  room ??= 'Unknown Room';
+  building ??= 'Unknown Building';
+
+  final availableUntilText = availableUntil != null ? DateFormat('HH:mm').format(availableUntil) : 'All day!';
+
+  print('Room: $room, Building: $building, Available until: $availableUntilText');
+
+  return Padding(
+    padding: EdgeInsets.all(8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            room,
+            style: TextStyle(fontSize: 14.0),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Padding(
+            padding: EdgeInsets.only(left: 42.0),
+            child: Text(
+              building,
+              style: TextStyle(fontSize: 14.0),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            availableUntilText,
+            style: TextStyle(fontSize: 14.0),
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+}
 
