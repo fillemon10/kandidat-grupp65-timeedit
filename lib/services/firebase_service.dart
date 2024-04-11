@@ -60,7 +60,6 @@ class FirebaseService {
 
   static Future<Map<String, List<Booking>>> groupBookingsByRoom(
       DateTime selectedDate) async {
-    log('groupBookingsByRoom: $selectedDate');
     try {
       // Calculate the start and end of the selected day
       DateTime startOfDay =
@@ -87,6 +86,15 @@ class FirebaseService {
       return bookingsByRoom;
     } catch (e) {
       log('Error grouping bookings by room: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> addBooking(Booking booking) async {
+    try {
+      await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+    } catch (e) {
+      log('Error adding booking: $e');
       rethrow;
     }
   }

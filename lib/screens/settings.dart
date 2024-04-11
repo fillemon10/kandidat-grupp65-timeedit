@@ -75,7 +75,7 @@ class SettingsScreenContent extends StatelessWidget {
                 Container(
                   width: screenWidth,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+                    color: Theme.of(context).colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -88,7 +88,7 @@ class SettingsScreenContent extends StatelessWidget {
                         widthFactor: 1.0,
                         child: Container(                  
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -136,7 +136,7 @@ class SettingsScreenContent extends StatelessWidget {
                 Container(
                   width: screenWidth,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+                    color: Theme.of(context).colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -202,7 +202,7 @@ class SettingsScreenContent extends StatelessWidget {
                           Icons.favorite,
                           color: Colors.red,
                         ),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                       elevation: 2,
                       onPressed: () {
                         context.push('/favourite_rooms');
@@ -232,7 +232,7 @@ class SettingsScreenContent extends StatelessWidget {
                         width: buttonSize,
                         height: buttonSize,
                         child: FloatingActionButton.extended(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                           heroTag: 'viewRulesButton',
                           elevation: 2,
                           onPressed: () {
@@ -254,7 +254,7 @@ class SettingsScreenContent extends StatelessWidget {
                         width: buttonSize,
                         height: buttonSize,
                         child: FloatingActionButton.extended(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                           heroTag: 'reportAnIssueButton',
                           elevation: 2,
                           

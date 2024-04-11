@@ -86,10 +86,7 @@ class _BookingTabBarState extends State<BookingTabBar>
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         elevation: 1,
-        onPressed: () {
-          // Navigate to the selected page
-          context.push('/new-booking/false/false');
-        },
+        onPressed: () {},
         label: const Text('New'),
         icon: const Icon(Icons.add),
       ),
@@ -148,27 +145,18 @@ class _BookingTabBarState extends State<BookingTabBar>
   }
 
   Widget _buildTabContent(BookingState state, DateTime date) {
-    return BlocProvider.value(
-      value: context.read<BookingBloc>(),
-      child: Builder(
-        builder: (context) {
-          if (state is BookingLoading || state is BookingInitial) {
-            // Show loading indicator or placeholder content while data is loading
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is BookingError) {
-            // Show error message if data loading failed
-            return Center(child: Text(state.message));
-          } else if (state is BookingLoaded) {
-            return BuildingsTable(
-              bookingData: state.bookingData,
-            );
-          } else {
-            // Handle other states if necessary
-            return Container();
-          }
-        },
-      ),
-    );
+    if (state is BookingLoading || state is BookingInitial) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is BookingError) {
+      return Center(child: Text(state.message));
+    } else if (state is BookingLoaded) {
+      return BuildingsTable(
+        bookingData: state.bookingData,
+        selectedDate: date,
+      );
+    } else {
+      return Container();
+    }
   }
 
   String _formatDate(DateTime date) {

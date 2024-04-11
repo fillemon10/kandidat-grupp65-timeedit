@@ -79,7 +79,6 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
         _cachedData[selectedDate] = data;
 
-        log(bookingsByRoom.toString());
         return data;
       }
     } catch (e) {

@@ -26,4 +26,13 @@ class Booking {
         'startTime': startTime,
         'endTime': endTime
       };
+
+  static Booking fromJson(Booking booking) {
+    return Booking(
+      roomName: booking.roomName,
+      userId: booking.userId,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+    );
+  }
 }
