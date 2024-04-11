@@ -17,6 +17,7 @@ class _MapsScreenState extends State<MapsScreen> {
   TextEditingController _searchController = TextEditingController();
   LatLng? _searchLocation;
   List<String> _searchResults = [];
+  String _lastQuery = ''; // Define _lastQuery here
 
   @override
   void initState() {
@@ -31,15 +32,22 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void _onSearchTextChanged() {
-    _searchRooms(_searchController.text);
+    String query = _searchController.text.trim(); // Trim any whitespace
+    if (_lastQuery != query) {
+      setState(() {
+        _lastQuery = query;
+      });
+      _searchRooms(query);
+    }
   }
 
   void _searchRooms(String query) {
     if (query.isNotEmpty) {
+      String queryUppercase = query.toUpperCase();
       FirebaseFirestore.instance
           .collection('rooms')
-          .where('name', isGreaterThanOrEqualTo: query)
-          .where('name', isLessThan: query + '\uf8ff')
+          .where('name', isGreaterThanOrEqualTo: queryUppercase)
+          .where('name', isLessThan: queryUppercase + '\uf8ff')
           .get()
           .then((QuerySnapshot snapshot) {
         setState(() {
