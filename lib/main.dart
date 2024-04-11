@@ -1,8 +1,13 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
 import 'package:timeedit/blocs/authentication_bloc.dart';
 import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:timeedit/blocs/filter_bloc.dart';
 import 'package:timeedit/blocs/navigation_bloc.dart';
 import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/booking.dart';
@@ -13,11 +18,11 @@ import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
-import 'package:timeedit/screens/new-booking.dart';
+import 'package:timeedit/screens/report-an-issue.dart';
 import 'package:timeedit/screens/settings.dart';
+import 'package:timeedit/screens/view-rules.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
-import 'package:timeedit/screens/filter.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
 
 void main() async {
@@ -28,7 +33,8 @@ void main() async {
       BlocProvider<NavigationBloc>(create: (context) => NavigationBloc()),
       BlocProvider<AuthenticationBloc>(
           create: (context) => AuthenticationBloc()),
-      BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
+      BlocProvider<BookingBloc>(create: (context) => BookingBloc()), // new
+      BlocProvider<FilterBloc>(create: (context) => FilterBloc()),
     ],
     child: const MyApp(),
   ));
@@ -40,6 +46,21 @@ final _sectionNavigatorKey = GlobalKey<NavigatorState>();
 final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  redirect: (context, state) {
+    var isLoggedIn = context.read<AuthenticationBloc>().state ==
+        AuthenticationState.authenticated;
+    // check if user is authenticated in firebaseAuth
+    if (FirebaseAuth.instance.currentUser != null) {
+      isLoggedIn = true;
+    }
+
+    // Redirect to 'sign-in' if not logged in and not on 'sign-in' or any 'forgot-password/*' route
+    if (!isLoggedIn &&
+        !state.uri.toString().startsWith('/sign-in/forgot-password')) {
+      return '/sign-in';
+    }
+    return null;
+  },
   routes: <RouteBase>[
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -91,29 +112,43 @@ final GoRouter _router = GoRouter(
         builder: (context, state) =>
             AfterCheckInScreen(id: state.pathParameters['id'].toString())),
     GoRoute(
-      path: '/filter',
-      builder: (context, state) {
-        return FilterScreen();
-      },
-    ),
-    GoRoute(
-        path: '/new-booking/:room/:time',
-        builder: (context, state) => NewBookingScreen(
-            room: state.pathParameters['room'].toString(),
-            time: state.pathParameters['time'].toString())),
-    GoRoute(
       path: '/sign-in',
       builder: (context, state) {
         return SignInScreen(
+          headerBuilder: (context, constraints, shrinkOffset) => Container(
+            height: constraints.maxHeight,
+            width: constraints.maxWidth,
+            child: Center(
+                child: SizedBox(
+              height: constraints.maxHeight,
+              child: Column(
+                children: [
+                  SizedBox(height: 49),
+                  Text(
+                    'Welcome!',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('Log-in to book group rooms at\n campus Johanneberg',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                      ))
+                ],
+              ),
+            )),
+          ),
           showPasswordVisibilityToggle: true,
           actions: [
             ForgotPasswordAction(((context, email) {
               final uri = Uri(
-                path: 'sign-in/forgot-password',
-                queryParameters: <String, String?>{
-                  'email': email,
-                },
+                // if email is "" it will be "email"
+                path:
+                    '/sign-in/forgot-password/${email!.isEmpty ? ' ' : email}',
               );
+
               context.push(uri.toString());
             })),
             AuthStateChangeAction(((context, state) {
@@ -142,13 +177,10 @@ final GoRouter _router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: 'sign-in/forgot-password',
+          path: 'forgot-password/:email',
           builder: (context, state) {
-            final arguments = state.uri.queryParameters;
             return ForgotPasswordScreen(
-              email: arguments['email'],
-              headerMaxExtent: 200,
-            );
+                email: state.pathParameters['email'].toString());
           },
         ),
       ],
@@ -173,7 +205,14 @@ final GoRouter _router = GoRouter(
         path: '/first-come-first-served',
         builder: (context, state) => FirstComeScreen()),
     GoRoute(
-        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()),
+        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()
+    ),
+    GoRoute(
+      path: '/view-rules', builder: (context, state) => RulesScreen()
+    ),
+    GoRoute(
+      path: '/report-an-issue', builder: (context, state) => ReportIssueScreen()
+    ),
   ],
 );
 
@@ -189,6 +228,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
+          tertiary: Color.fromRGBO(161, 39, 39, 1),
           brightness: Brightness.light,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -196,6 +236,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
+          tertiary: Color.fromRGBO(161, 39, 39, 1),
           brightness: Brightness.dark,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,

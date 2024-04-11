@@ -36,6 +36,7 @@ class FirebaseService {
           .map((doc) => Room.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
+
       // Group rooms by building
       final roomsByBuilding = <String, List<Room>>{};
       for (final room in rooms) {
@@ -43,6 +44,11 @@ class FirebaseService {
           roomsByBuilding[room.building] = [];
         }
         roomsByBuilding[room.building]!.add(room);
+      }
+
+      //order rooms by name
+      for (final building in roomsByBuilding.keys) {
+        roomsByBuilding[building]!.sort((a, b) => a.name.compareTo(b.name));
       }
 
       return roomsByBuilding;
@@ -54,7 +60,6 @@ class FirebaseService {
 
   static Future<Map<String, List<Booking>>> groupBookingsByRoom(
       DateTime selectedDate) async {
-    log('groupBookingsByRoom: $selectedDate');
     try {
       // Calculate the start and end of the selected day
       DateTime startOfDay =
@@ -81,6 +86,15 @@ class FirebaseService {
       return bookingsByRoom;
     } catch (e) {
       log('Error grouping bookings by room: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> addBooking(Booking booking) async {
+    try {
+      await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+    } catch (e) {
+      log('Error adding booking: $e');
       rethrow;
     }
   }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../models/filter.dart';
+import '../blocs/filter_bloc.dart';
 
 class FilterDrawer extends StatefulWidget {
   const FilterDrawer({Key? key}) : super(key: key);
@@ -133,7 +136,8 @@ class _FilterDrawerState extends State<FilterDrawer> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ExpansionTile(
-          tilePadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10), // Remove default padding
+          tilePadding: EdgeInsets.symmetric(
+              vertical: 0, horizontal: 10), // Remove default padding
 
           shape: Border.all(color: Colors.transparent),
           initiallyExpanded: true,

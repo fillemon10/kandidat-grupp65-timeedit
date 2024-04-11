@@ -1,9 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skeletonizer/skeletonizer.dart';
-import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:timeedit/models/booking.dart';
 import 'package:timeedit/models/room.dart';
 import 'package:timeedit/widgets/booking_row.dart';
@@ -27,8 +25,10 @@ class BookingScreen extends StatelessWidget {
 
 class BuildingsTable extends StatefulWidget {
   final Map<String, dynamic> bookingData;
+  final DateTime selectedDate;
 
-  const BuildingsTable({Key? key, required this.bookingData}) : super(key: key);
+  const BuildingsTable(
+      {super.key, required this.bookingData, required this.selectedDate});
 
   @override
   State<BuildingsTable> createState() => _BuildingsTableState();
@@ -49,6 +49,7 @@ class _BuildingsTableState extends State<BuildingsTable> {
           buildingName: buildingName,
           rooms: rooms,
           bookingsByRoom: bookingsByRoom,
+          selectedDate: widget.selectedDate,
         );
       },
     );
@@ -59,21 +60,21 @@ class BuildingTable extends StatefulWidget {
   final String buildingName;
   final List<Room> rooms;
   final Map<String, List<Booking>> bookingsByRoom;
+  final DateTime selectedDate;
 
   const BuildingTable({
-    Key? key,
+    super.key,
     required this.buildingName,
     required this.rooms,
     required this.bookingsByRoom,
-  }) : super(key: key);
+    required this.selectedDate,
+  });
 
   @override
   State<BuildingTable> createState() => _BuildingTableState();
 }
 
 class _BuildingTableState extends State<BuildingTable> {
-  final ScrollController _sharedController = ScrollController(); // Define here
-
   bool _isExpanded = true;
 
   @override
@@ -89,24 +90,50 @@ class _BuildingTableState extends State<BuildingTable> {
       title: Text(widget.buildingName),
       onExpansionChanged: (value) => setState(() => _isExpanded = value),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var room in widget.rooms) ...[
-                    BookingRow(
-                      room: room,
-                      bookings: widget.bookingsByRoom[room.name] ?? [],
-                      scrollController:
-                          _sharedController, // Pass the controller here
+        Card(
+          child: InteractiveViewer(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var room in widget.rooms) ...[
+                          //if first, elseif odd else if even
+                          if (widget.rooms.indexOf(room) == 0)
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: true,
+                              odd: true,
+                              selectedDate: widget.selectedDate,
+                            )
+                          else if (widget.rooms.indexOf(room) % 2 == 0)
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: false,
+                              odd: true,
+                              selectedDate: widget.selectedDate,
+                            )
+                          else
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: false,
+                              odd: false,
+                              selectedDate: widget.selectedDate,
+                            ),
+                        ]
+                      ],
                     ),
-                  ]
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );
