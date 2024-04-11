@@ -7,11 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_pin_code_fields/flutter_pin_code_fields.dart';
 
-
 void main() => runApp(const MaterialApp(home: CheckInScreen()));
 
 class CheckInScreen extends StatelessWidget {
-
   const CheckInScreen({super.key});
 
   @override
@@ -55,120 +53,148 @@ class _QrViewState extends State<QrView> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _pinController = TextEditingController();
+  }
 
-@override
-void initState(){
-  super.initState();
-  _pinController = TextEditingController();
-}
+  @override
+  void dispose() {
+    _pinController.dispose();
+    super.dispose();
+  }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Column(
-      children: <Widget>[
-        Expanded(
-          // Flex widget to expand and take up available space
-          flex: 8,
-          child: _buildQrView(context), // Display the QR view method
-        ),
-        SizedBox(height: 16), // Add spacing between QR view and buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            // First ElevatedButton
-            ElevatedButton(
-              onPressed: () {
-                showDialog(context: context, builder: (context) => AlertDialog(
-                  title: Text('Write the rooms QR code manually here'),
-                  content: Container(
-                    width: 200, // Set desired width
-                    height: 100, // Set desired height
-                    child: PinCodeFields(
-                      controller: _pinController,
-                      keyboardType: TextInputType.number,
-                    onComplete: (value) {
-                    if (value.length == 6) {
-                      print('Completed Pin: $value'); // Print completed pin code
-              // You can perform further actions here
-              } else {
-              print('Invalid Pin: $value'); // Handle invalid input
-            }
-          },),),
-                actions: [
-          TextButton(
-            style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(Color.fromARGB(255, 202, 211, 201)), // Set background color
-    foregroundColor: MaterialStateProperty.all<Color>(Color(0xFF4D4A4A)), // Set text color
-    padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
-  ),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            // Flex widget to expand and take up available space
+            flex: 8,
+            child: _buildQrView(context), // Display the QR view method
           ),
-          TextButton(
-            style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFBFD5BC)), // Set background color
-    foregroundColor: MaterialStateProperty.all<Color>(Color(0xFF4D4A4A)), // Set text color
-    padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
-  ),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Done!'),
-          ),
-        ],
-                ),
-                );
-                // Handle button tap action
-                Navigator.pushNamed(context, '/after-checkin'); // Navigate to another screen
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Color.fromARGB(255, 130, 201, 149)), // Set button background color to green
-              ),
-              child: Text('Enter ID',
-              style: TextStyle(color: Colors.white), // Set text color to white
-              ),
+          
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
             ),
-            // Second ElevatedButton
-            ElevatedButton(
-              
-              onPressed: () {
-                showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                title: Text('Help'),
-                content: Text('Scan the QR code outside a room to check in to your booking or see the booking status for the current room', style: TextStyle(color: Color.fromARGB(255, 55, 54, 54)),),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Ok, I understand', style: TextStyle(color: Color.fromARGB(255, 49, 49, 49)),),
+            child: Column(
+              children: [
+                SizedBox(height: 3),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ActionChip(
+                          label: Text('Flash'),
+                          avatar: Icon(Icons.flashlight_on),
+                          side: (controller?.getFlashStatus()) == true
+                              ? BorderSide(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.1),
+                                  width: 1,
+                                )
+                              : BorderSide(
+                                  color: Theme.of(context)
+                                      .disabledColor
+                                      .withOpacity(0.1),
+                                  width: 1,
+                                ),
+                          onPressed: () {
+                            controller?.toggleFlash();
+                          }),
+                    ),
+                    ActionChip(
+                      label: Text('Enter ID'),
+                      avatar: Icon(Icons.dialpad),
+                      side: BorderSide(
+                          color: Theme.of(context).disabledColor.withOpacity(0.1),
+                          width: 1),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('Write the rooms QR code manually here'),
+                            content: Container(
+                              width: 300,
+                              height: 70,
+                              child: PinCodeFields(
+                                autofocus: true,
+                                borderColor: Theme.of(context).primaryColor,
+                                activeBorderColor:
+                                    Theme.of(context).primaryColorDark,
+                                length: 6,
+                                keyboardType: TextInputType.number,
+                                onComplete: (value) {
+                                  if (value.length == 6) {
+                                    context.push('/checkin/${value}');
+                                  } else {
+                                    print(
+                                        'Invalid Pin: $value'); // Handle invalid input
+                                  }
+                                },
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  context.pop();
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    Expanded(
+                      child: ActionChip(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Help'),
+                              content: Text(
+                                'Scan the QR code outside a room to check in to your booking or see the booking status for the current room',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 55, 54, 54)),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    context.pop();
+                                  },
+                                  child: const Text(
+                                    'Ok, I understand',
+                                    style: TextStyle(
+                                        color: Color.fromARGB(255, 49, 49, 49)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        side: BorderSide(
+                            color: Theme.of(context).disabledColor.withOpacity(0.1),
+                            width: 1),
+                        avatar: Icon(Icons.help),
+                        label: Text(
+                          'Help',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 3),
+              ],
+            ),
           ),
         ],
-        
       ),
     );
-  },
-  style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFBFD5BC)), // Set background color
-    foregroundColor: MaterialStateProperty.all<Color>(Color(0xFF4D4A4A)), // Set text color
-    padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(vertical: 16)), // Adjust button height
-  ),
-  child: Text(
-    'Help',
-    style: TextStyle(color: Colors.white), // Set text color to white
-  ),
-),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
+  }
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
@@ -226,12 +252,5 @@ Widget build(BuildContext context) {
         const SnackBar(content: Text('no Permission')),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    controller?.dispose();
-    super.dispose();
   }
 }
