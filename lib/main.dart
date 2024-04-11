@@ -18,7 +18,6 @@ import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
-import 'package:timeedit/screens/new-booking.dart';
 import 'package:timeedit/screens/report-an-issue.dart';
 import 'package:timeedit/screens/settings.dart';
 import 'package:timeedit/screens/view-rules.dart';
