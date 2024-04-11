@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeedit/blocs/authentication_bloc.dart';
 import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:timeedit/blocs/filter_bloc.dart';
 import 'package:timeedit/blocs/navigation_bloc.dart';
 import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/booking.dart';
@@ -17,10 +18,8 @@ import 'package:timeedit/screens/home.dart';
 import 'package:timeedit/screens/maps.dart';
 import 'package:timeedit/screens/mybookings.dart';
 import 'package:timeedit/screens/settings.dart';
-import 'package:timeedit/screens/sign-in.dart';
 import 'package:timeedit/services/firebase_service.dart';
 import 'package:timeedit/widgets/navbar.dart';
-import 'package:timeedit/screens/filter.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
 
 void main() async {
@@ -31,7 +30,8 @@ void main() async {
       BlocProvider<NavigationBloc>(create: (context) => NavigationBloc()),
       BlocProvider<AuthenticationBloc>(
           create: (context) => AuthenticationBloc()),
-      BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
+      BlocProvider<BookingBloc>(create: (context) => BookingBloc()), // new
+      BlocProvider<FilterBloc>(create: (context) => FilterBloc()),
     ],
     child: const MyApp(),
   ));
@@ -108,12 +108,6 @@ final GoRouter _router = GoRouter(
         path: '/checkin/:id',
         builder: (context, state) =>
             AfterCheckInScreen(id: state.pathParameters['id'].toString())),
-    GoRoute(
-      path: '/filter',
-      builder: (context, state) {
-        return FilterScreen();
-      },
-    ),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {

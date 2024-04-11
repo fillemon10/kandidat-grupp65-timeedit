@@ -25,8 +25,10 @@ class BookingScreen extends StatelessWidget {
 
 class BuildingsTable extends StatefulWidget {
   final Map<String, dynamic> bookingData;
+  final DateTime selectedDate;
 
-  const BuildingsTable({super.key, required this.bookingData});
+  const BuildingsTable(
+      {super.key, required this.bookingData, required this.selectedDate});
 
   @override
   State<BuildingsTable> createState() => _BuildingsTableState();
@@ -47,6 +49,7 @@ class _BuildingsTableState extends State<BuildingsTable> {
           buildingName: buildingName,
           rooms: rooms,
           bookingsByRoom: bookingsByRoom,
+          selectedDate: widget.selectedDate,
         );
       },
     );
@@ -57,12 +60,14 @@ class BuildingTable extends StatefulWidget {
   final String buildingName;
   final List<Room> rooms;
   final Map<String, List<Booking>> bookingsByRoom;
+  final DateTime selectedDate;
 
   const BuildingTable({
     super.key,
     required this.buildingName,
     required this.rooms,
     required this.bookingsByRoom,
+    required this.selectedDate,
   });
 
   @override
@@ -70,8 +75,6 @@ class BuildingTable extends StatefulWidget {
 }
 
 class _BuildingTableState extends State<BuildingTable> {
-  final ScrollController _sharedController = ScrollController(); // Define here
-
   bool _isExpanded = true;
 
   @override
@@ -88,43 +91,48 @@ class _BuildingTableState extends State<BuildingTable> {
       onExpansionChanged: (value) => setState(() => _isExpanded = value),
       children: [
         Card(
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var room in widget.rooms) ...[
-                        //if first, elseif odd else if even
-                        if (widget.rooms.indexOf(room) == 0)
-                          BookingRow(
-                            room: room,
-                            bookings: widget.bookingsByRoom[room.name] ?? [],
-                            first: true,
-                            odd: true,
-                          )
-                        else if (widget.rooms.indexOf(room) % 2 == 0)
-                          BookingRow(
-                            room: room,
-                            bookings: widget.bookingsByRoom[room.name] ?? [],
-                            first: false,
-                            odd: true,
-                          )
-                        else
-                          BookingRow(
-                            room: room,
-                            bookings: widget.bookingsByRoom[room.name] ?? [],
-                            first: false,
-                            odd: false,
-                          ),
-                      ]
-                    ],
+          child: InteractiveViewer(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var room in widget.rooms) ...[
+                          //if first, elseif odd else if even
+                          if (widget.rooms.indexOf(room) == 0)
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: true,
+                              odd: true,
+                              selectedDate: widget.selectedDate,
+                            )
+                          else if (widget.rooms.indexOf(room) % 2 == 0)
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: false,
+                              odd: true,
+                              selectedDate: widget.selectedDate,
+                            )
+                          else
+                            BookingRow(
+                              room: room,
+                              bookings: widget.bookingsByRoom[room.name] ?? [],
+                              first: false,
+                              odd: false,
+                              selectedDate: widget.selectedDate,
+                            ),
+                        ]
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

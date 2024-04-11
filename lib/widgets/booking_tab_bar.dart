@@ -77,10 +77,6 @@ class _BookingTabBarState extends State<BookingTabBar>
     }
   }
 
-  void refresh() {
-    context.read<BookingBloc>().add(FetchBookingData(_selectedDate));
-  }
-
   final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
 
   @override
@@ -115,13 +111,7 @@ class _BookingTabBarState extends State<BookingTabBar>
             icon: const Icon(Icons.filter_alt_outlined),
             onPressed: () =>
                 _key.currentState!.openDrawer(), // <-- Opens drawer
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              refresh();
-            },
-          ),
+          )
         ],
       ),
       body: Column(
@@ -155,27 +145,18 @@ class _BookingTabBarState extends State<BookingTabBar>
   }
 
   Widget _buildTabContent(BookingState state, DateTime date) {
-    return BlocProvider.value(
-      value: context.read<BookingBloc>(),
-      child: Builder(
-        builder: (context) {
-          if (state is BookingLoading || state is BookingInitial) {
-            // Show loading indicator or placeholder content while data is loading
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is BookingError) {
-            // Show error message if data loading failed
-            return Center(child: Text(state.message));
-          } else if (state is BookingLoaded) {
-            return BuildingsTable(
-              bookingData: state.bookingData,
-            );
-          } else {
-            // Handle other states if necessary
-            return Container();
-          }
-        },
-      ),
-    );
+    if (state is BookingLoading || state is BookingInitial) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is BookingError) {
+      return Center(child: Text(state.message));
+    } else if (state is BookingLoaded) {
+      return BuildingsTable(
+        bookingData: state.bookingData,
+        selectedDate: date,
+      );
+    } else {
+      return Container();
+    }
   }
 
   String _formatDate(DateTime date) {

@@ -11,24 +11,26 @@ class BookingRow extends StatefulWidget {
   final List<Booking> bookings;
   final bool first;
   final bool odd;
+  final DateTime selectedDate;
 
   const BookingRow(
       {super.key,
       required this.room,
       required this.bookings,
       required this.first,
-      required this.odd});
+      required this.odd,
+      required this.selectedDate});
 
   @override
   State<BookingRow> createState() => _BookingRowState();
 }
 
 class _BookingRowState extends State<BookingRow> {
-  DateTime _dayStart = DateTime.now().copyWith(
+  late final DateTime _dayStart = widget.selectedDate.copyWith(
       hour: 8, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
-  DateTime _dayEnd = DateTime.now().copyWith(
-      hour: 19, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
+  late final DateTime _dayEnd = widget.selectedDate.copyWith(
+      hour: 18, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
   final int _timeSlotInterval = 15;
   double _timeSlotWidth = 0;
@@ -105,17 +107,17 @@ class _BookingRowState extends State<BookingRow> {
       return Flexible(
         // Or Expanded
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 0),
-          child: Text(
-            DateFormat('HH').format(slotStart), // Display only the hour
-            textAlign: TextAlign.left,
-            style: TextStyle(fontSize: 11),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0),
           width: _timeSlotWidth * 4,
           decoration: BoxDecoration(
             border: Border(
               left: BorderSide(color: Theme.of(context).disabledColor),
             ),
+          ),
+          child: Text(
+            DateFormat('HH').format(slotStart), // Display only the hour
+            textAlign: TextAlign.left,
+            style: const TextStyle(fontSize: 11),
           ),
         ),
       );
@@ -167,20 +169,20 @@ class _BookingRowState extends State<BookingRow> {
       if (booking.userId == FirebaseAuth.instance.currentUser!.uid) {
         return Container(
           width: _timeSlotWidth,
-          height: 10,
+          height: 15,
           color: Theme.of(context).colorScheme.secondary,
         );
       } else {
         return Container(
           width: _timeSlotWidth,
-          height: 10,
+          height: 15,
           color: Theme.of(context).colorScheme.tertiary,
         );
       }
     } else {
       return Container(
           width: _timeSlotWidth,
-          height: 10,
+          height: 15,
           decoration: BoxDecoration(
             // Full hour: Add left border
             border: (slotStart.minute == 0)
