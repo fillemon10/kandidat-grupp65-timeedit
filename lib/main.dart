@@ -112,6 +112,31 @@ final GoRouter _router = GoRouter(
       path: '/sign-in',
       builder: (context, state) {
         return SignInScreen(
+          headerBuilder: (context, constraints, shrinkOffset) => Container(
+            height: constraints.maxHeight,
+            width: constraints.maxWidth,
+            child: Center(
+                child: SizedBox(
+              height: constraints.maxHeight,
+              child: Column(
+                children: [
+                  SizedBox(height: 49),
+                  Text(
+                    'Welcome!',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('Log-in to book group rooms at\n campus Johanneberg',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                      ))
+                ],
+              ),
+            )),
+          ),
           showPasswordVisibilityToggle: true,
           actions: [
             ForgotPasswordAction(((context, email) {
