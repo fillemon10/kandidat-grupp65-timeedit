@@ -30,7 +30,7 @@ class _BookingRowState extends State<BookingRow> {
       hour: 8, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
   late final DateTime _dayEnd = widget.selectedDate.copyWith(
-      hour: 18, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
+      hour: 17, minute: 0, second: 0, millisecond: 0 // Set milliseconds to 0
       );
   final int _timeSlotInterval = 15;
   double _timeSlotWidth = 0;
@@ -169,20 +169,20 @@ class _BookingRowState extends State<BookingRow> {
       if (booking.userId == FirebaseAuth.instance.currentUser!.uid) {
         return Container(
           width: _timeSlotWidth,
-          height: 15,
+          height: 20,
           color: Theme.of(context).colorScheme.secondary,
         );
       } else {
         return Container(
           width: _timeSlotWidth,
-          height: 15,
+          height: 20,
           color: Theme.of(context).colorScheme.tertiary,
         );
       }
     } else {
       return Container(
           width: _timeSlotWidth,
-          height: 15,
+          height: 20,
           decoration: BoxDecoration(
             // Full hour: Add left border
             border: (slotStart.minute == 0)
@@ -197,7 +197,7 @@ class _BookingRowState extends State<BookingRow> {
   }
 
   int _calculateTimeSlots() {
-    return 11 * 4;
+    return 10 * 4;
   }
 
   void _handleTimeSlotTap(int index) {
