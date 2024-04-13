@@ -42,7 +42,6 @@ void main() async {
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>();
-
 final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
@@ -100,17 +99,14 @@ final GoRouter _router = GoRouter(
             path: '/settings',
             builder: (context, state) => SettingsScreen(),
           ),
-        ]),
+        ])
       ],
     ),
     GoRoute(
-      path: '/checkin',
-      builder: (context, state) => CheckInScreen(),
+      path: '/after-checkin/:id',
+      builder: (context, state) =>
+          AfterCheckInScreen(id: state.pathParameters['id']),
     ),
-    GoRoute(
-        path: '/checkin/:id',
-        builder: (context, state) =>
-            AfterCheckInScreen(id: state.pathParameters['id'].toString())),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) {
@@ -205,24 +201,24 @@ final GoRouter _router = GoRouter(
         path: '/first-come-first-served',
         builder: (context, state) => FirstComeScreen()),
     GoRoute(
-        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()
-    ),
+        path: '/my-bookings', builder: (context, state) => MyBookingsScreen()),
+    GoRoute(path: '/view-rules', builder: (context, state) => RulesScreen()),
     GoRoute(
-      path: '/view-rules', builder: (context, state) => RulesScreen()
-    ),
-    GoRoute(
-      path: '/report-an-issue', builder: (context, state) => ReportIssueScreen()
-    ),
+        path: '/report-an-issue',
+        builder: (context, state) => ReportIssueScreen()),
   ],
 );
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: _router,  
+      
       title: 'TimeEdit',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
