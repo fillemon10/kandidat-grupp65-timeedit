@@ -31,7 +31,7 @@ class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
   }
 
   Future<void> _onQRCodeScanned(String qrCode) async {
-    if (!_isValidScan(_barcode!)) {
+    if (!_isValidScan(qrCode!)) {
       return;
     }
     //unsubscribe from the scanner
@@ -41,8 +41,7 @@ class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
         showDragHandle: true,
         useRootNavigator: true,
         context: context,
-        builder: (context) =>
-            AfterCheckInScreen(id: _barcode!.rawValue.toString())).then(
+        builder: (context) => AfterCheckInScreen(id: qrCode)).then(
       (value) {
         //subscribe to the scanner
         _subscription = controller.barcodes.listen(_handleBarcode);
@@ -50,15 +49,15 @@ class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
     );
   }
 
-  bool _isValidScan(Barcode scanData) {
-    if (scanData.rawValue == null) {
+  bool _isValidScan(String scanData) {
+    if (scanData == null) {
       return false;
     }
 
     // Define the regex pattern for the required format LL-NNNNL
     RegExp regex = RegExp(r'^[A-Z]{2}-\d{4}[A-Z]$');
     // Check if the scanned data matches the pattern
-    return regex.hasMatch(scanData.rawValue?.trim() as String);
+    return regex.hasMatch(scanData?.trim() as String);
   }
 
   @override
@@ -208,11 +207,24 @@ class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
                                   borderColor: Theme.of(context).primaryColor,
                                   activeBorderColor:
                                       Theme.of(context).primaryColorDark,
-                                  length: 6,
+                                  length: 5,
                                   keyboardType: TextInputType.number,
                                   onComplete: (value) {
-                                    if (value.length == 6) {
-                                      context.push('/checkin/${value}');
+                                    if (value.length == 5) {
+                                      // Room code transformation logic
+                                      int roomNumber = int.parse(value);
+                                      String suffix = (roomNumber % 10)
+                                          .toString(); // Get the last digit
+                                      String roomSuffix = suffix == '1'
+                                          ? 'A'
+                                          : suffix == '2'
+                                              ? 'B'
+                                              : 'X'; // Replace if needed
+                                      var valueWithoutLastDigit = roomNumber ~/ 10; // Remove the last digit
+
+                                      String finalCode = 'EG-$valueWithoutLastDigit$roomSuffix';
+                                    
+                                      _onQRCodeScanned(finalCode);
                                     } else {
                                       print(
                                           'Invalid Pin: $value'); // Handle invalid input
