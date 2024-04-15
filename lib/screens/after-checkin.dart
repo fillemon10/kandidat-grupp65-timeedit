@@ -76,7 +76,7 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
         Container(
           width: double.infinity,
           child: Card(
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: const Color.fromARGB(255, 255, 212, 82),
             elevation: 0,
             child: Padding(
               padding: const EdgeInsets.only(
@@ -88,7 +88,7 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                     children: [
                       Text(
                         style: TextStyle(fontWeight: FontWeight.bold),
-                        'Already Checked In to Room ${state.room!.name}',
+                        'This Room is Already Checked In',
                       ),
                     ],
                   ),
@@ -109,11 +109,31 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                   Row(
                     children: [
                       Text(
+                        'Room Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
                         'Room',
                       ),
                       Spacer(),
                       Text('${state.room!.name}'),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -204,10 +224,14 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                     children: [
                       Text(
                         'Room',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Spacer(),
                       Text('${state.room!.name}'),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -262,8 +286,12 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                     children: [
                       Text(
                         'Booking Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -290,7 +318,6 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                       Text(formatdateTime(state.booking.endTime)),
                     ],
                   ),
-                  Divider(),
                 ],
               ),
             ),
@@ -341,11 +368,31 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                   Row(
                     children: [
                       Text(
+                        'Room Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
                         'Room',
                       ),
                       Spacer(),
                       Text('${state.room!.name}'),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -393,11 +440,15 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
             FilledButton(
                 child: Text('Book Room'),
                 onPressed: () => showModalBottomSheet(
-                    showDragHandle: true,
-                    useRootNavigator: true,
-                    context: context,
-                    builder: (context) => NewBookingBottomSheet(
-                        room: state.room!, startTime: DateTime.now()))),
+                        showDragHandle: true,
+                        useRootNavigator: true,
+                        context: context,
+                        builder: (context) => NewBookingBottomSheet(
+                            room: state.room!, startTime: DateTime.now()))
+                    .then((value) => context
+                        .read<CheckInBloc>()
+                        .add(CheckInStarted(widget.id!)))
+                    .then((value) => context.pop())),
           ],
         )
       ]),
@@ -445,11 +496,31 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                   Row(
                     children: [
                       Text(
+                        'Room Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
                         'Room',
                       ),
                       Spacer(),
                       Text('${state.room!.name}'),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -539,11 +610,31 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
                   Row(
                     children: [
                       Text(
+                        'Room Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
                         'Room',
                       ),
                       Spacer(),
                       Text('${state.room!.name}'),
                     ],
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Divider(
                     height: 5,
@@ -585,8 +676,55 @@ class _AfterCheckInScreenState extends State<AfterCheckInScreen> {
             ),
           ),
         ),
-        SizedBox(
-          height: 10,
+        Container(
+          width: double.infinity,
+          child: Card(
+            elevation: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  left: 10.0, top: 10.0, right: 10.0, bottom: 10.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Booking Details',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Start Time',
+                      ),
+                      Spacer(),
+                      Text(formatdateTime(state.booking.startTime)),
+                    ],
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      Text(
+                        'End Time',
+                      ),
+                      Spacer(),
+                      Text(formatdateTime(state.booking.endTime)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ]),
     );
