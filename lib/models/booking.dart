@@ -6,25 +6,29 @@ class Booking {
     required this.userId,
     required this.startTime,
     required this.endTime,
+    required this.checkedIn,
   });
 
   final String roomName;
   final String userId;
   final DateTime startTime;
   final DateTime endTime;
+  final bool checkedIn;
 
   factory Booking.fromMap(Map<String, dynamic> json) => Booking(
         roomName: json['roomName'],
         userId: json['userId'],
         startTime: (json['startTime'] as Timestamp).toDate(),
         endTime: (json['endTime'] as Timestamp).toDate(),
+        checkedIn: json['checkedIn'],
       );
 
   Map<String, dynamic> toMap() => {
         'roomName': roomName,
         'userId': userId,
         'startTime': startTime,
-        'endTime': endTime
+        'endTime': endTime,
+        'checkedIn': checkedIn,
       };
 
   static Booking fromJson(Booking booking) {
@@ -33,6 +37,7 @@ class Booking {
       userId: booking.userId,
       startTime: booking.startTime,
       endTime: booking.endTime,
+      checkedIn: booking.checkedIn,
     );
   }
 }

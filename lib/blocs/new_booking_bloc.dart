@@ -163,10 +163,10 @@ class NewBookingBloc extends Bloc<NewBookingEvent, NewBookingState> {
               state.startDate!.day, state.endTime!.hour, state.endTime!.minute),
           roomName: state.room!.name,
           userId: FirebaseAuth.instance.currentUser!.uid,
+          checkedIn: false,
         );
         await addBooking(booking);
         emit(BookingSuccess());
-
       }
     });
 

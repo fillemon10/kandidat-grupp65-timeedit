@@ -41,7 +41,17 @@ class SettingsScreenContent extends StatelessWidget {
        * 
        * Might want to add some styling.
        */
+      
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              BlocProvider.of<AuthenticationBloc>(context).add(AuthenticationEvent.signOutRequested);
+              context.go('/sign-in');
+            },
+          ),
+        ],
         title: const Text(
           'Settings',
         ),

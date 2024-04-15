@@ -1,18 +1,15 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart';
 import 'package:timeedit/blocs/authentication_bloc.dart';
 import 'package:timeedit/blocs/booking_bloc.dart';
+import 'package:timeedit/blocs/check_in_bloc.dart';
 import 'package:timeedit/blocs/filter_bloc.dart';
 import 'package:timeedit/blocs/navigation_bloc.dart';
 import 'package:timeedit/screens/after-checkin.dart';
 import 'package:timeedit/screens/booking.dart';
 import 'package:timeedit/screens/checkin.dart';
-import 'package:timeedit/screens/favourite_rooms.dart';
 import 'package:timeedit/screens/favourites.dart';
 import 'package:timeedit/screens/firstcome.dart';
 import 'package:timeedit/screens/home.dart';
@@ -33,8 +30,9 @@ void main() async {
       BlocProvider<NavigationBloc>(create: (context) => NavigationBloc()),
       BlocProvider<AuthenticationBloc>(
           create: (context) => AuthenticationBloc()),
-      BlocProvider<BookingBloc>(create: (context) => BookingBloc()), // new
+      BlocProvider<BookingBloc>(create: (context) => BookingBloc()),
       BlocProvider<FilterBloc>(create: (context) => FilterBloc()),
+      BlocProvider<CheckInBloc>(create: (context) => CheckInBloc()),
     ],
     child: const MyApp(),
   ));
@@ -117,23 +115,24 @@ final GoRouter _router = GoRouter(
             child: Center(
                 child: SizedBox(
               height: constraints.maxHeight,
-              child: Column(
-                children: [
-                  SizedBox(height: 49),
-                  Text(
-                    'Welcome!',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text('Log-in to book group rooms at\n campus Johanneberg',
-                      textAlign: TextAlign.center,
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Welcome!',
                       style: TextStyle(
-                        fontSize: 20,
-                      ))
-                ],
-              ),
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text('Log-in to book group rooms at\n campus Johanneberg',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                        ))
+                  ],
+                ),
+              )
             )),
           ),
           showPasswordVisibilityToggle: true,
@@ -212,19 +211,17 @@ final GoRouter _router = GoRouter(
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,  
-      
+      routerConfig: _router,
       title: 'TimeEdit',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
           tertiary: Color.fromRGBO(161, 39, 39, 1),
+          tertiaryContainer: Color.fromRGBO(238, 118, 118, 1),
           brightness: Brightness.light,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -233,6 +230,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(191, 213, 188, 1),
           tertiary: Color.fromRGBO(161, 39, 39, 1),
+          tertiaryContainer: Color.fromRGBO(238, 118, 118, 1),
           brightness: Brightness.dark,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,

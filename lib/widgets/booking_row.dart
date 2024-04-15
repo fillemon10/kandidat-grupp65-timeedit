@@ -218,7 +218,7 @@ class _BookingRowState extends State<BookingRow> {
   }
 }
 
-extension ListExtensions<E> on List<E> {
+extension ListExtensions<E> on List<E> { 
   E? firstWhereOrNull(bool Function(E element) test) {
     try {
       return firstWhere(test);

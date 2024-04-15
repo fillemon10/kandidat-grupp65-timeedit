@@ -36,7 +36,6 @@ class FirebaseService {
           .map((doc) => Room.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-
       // Group rooms by building
       final roomsByBuilding = <String, List<Room>>{};
       for (final room in rooms) {
@@ -92,9 +91,111 @@ class FirebaseService {
 
   static Future<void> addBooking(Booking booking) async {
     try {
-      await FirebaseFirestore.instance.collection('bookings').add(booking.toMap());
+      await FirebaseFirestore.instance
+          .collection('bookings')
+          .add(booking.toMap());
     } catch (e) {
       log('Error adding booking: $e');
+      rethrow;
+    }
+  }
+
+  //find booking that is active right now for the user
+  static Future<(Booking?, String)> findActiveBooking(String roomName) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        return (null, '');
+      }
+
+      final now = DateTime.now();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('startTime', isLessThan: now)
+          .where('roomName', isEqualTo: roomName)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        return (null, 'No active booking found');
+      }
+      // do a greater then check to see if the booking is still active
+      final activeBooking = snapshot.docs.firstWhere(
+          (doc) => (doc.data() as Map<String, dynamic>)['endTime']
+              .toDate()
+              .isAfter(now),
+          orElse: () => throw Exception('No active booking found'));
+
+      final id = activeBooking.id;
+      final booking =
+          Booking.fromMap(activeBooking.data() as Map<String, dynamic>);
+      return (booking, id);
+    } catch (e) {
+      log('Error finding active booking: $e');
+      return (null, 'Error finding active booking'); // More general message
+    }
+  }
+
+  //check in a booking by updating the checkedIn field
+  static Future<bool> checkInBooking(String id) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('bookings')
+          .doc(id)
+          .update({'checkedIn': true});
+      return true;
+    } catch (e) {
+      log('Error checking in booking: $e');
+      return false;
+    }
+  }
+
+  static Future<Room?> fetchRoomDetails(String roomName) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('rooms')
+          .where('name', isEqualTo: roomName)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return Room.fromMap(snapshot.docs.first.data() as Map<String, dynamic>);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      log('Error fetching room details: $e');
+      rethrow;
+    }
+  }
+
+  static Future<DateTime?> checkRoomAvailability(String roomName) async {
+    try {
+      final now = DateTime.now();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('roomName', isEqualTo: roomName)
+          .where('startTime', isLessThan: now)
+          .where('checkedIn', isEqualTo: false)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        return null;
+      }
+
+      // do a greater then check to see if the booking is still active
+      final activeBooking = snapshot.docs.firstWhere(
+          (doc) => (doc.data() as Map<String, dynamic>)['endTime']
+              .toDate()
+              .isAfter(now),
+          orElse: () => throw Exception('No active booking found'));
+
+
+
+      final booking =
+          Booking.fromMap(activeBooking.data() as Map<String, dynamic>);
+
+      return booking.endTime;
+    } catch (e) {
+      log('Error checking room availability: $e');
       rethrow;
     }
   }

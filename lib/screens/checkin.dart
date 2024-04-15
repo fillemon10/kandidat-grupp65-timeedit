@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pin_code_fields/flutter_pin_code_fields.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:timeedit/screens/after-checkin.dart';
 
 class CheckInScreen extends StatefulWidget {
   @override
@@ -15,9 +16,7 @@ class CheckInScreen extends StatefulWidget {
 class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
     with WidgetsBindingObserver {
   final MobileScannerController controller = MobileScannerController(
-      formats: const [BarcodeFormat.qrCode],
-      detectionSpeed: DetectionSpeed.noDuplicates,
-      facing: CameraFacing.back);
+      formats: const [BarcodeFormat.qrCode], facing: CameraFacing.back);
 
   StreamSubscription<Object?>? _subscription;
 
@@ -35,16 +34,29 @@ class _BarcodeScannerWithOverlayState extends State<CheckInScreen>
     if (!_isValidScan(_barcode!)) {
       return;
     }
+    //unsubscribe from the scanner
+    unawaited(_subscription?.cancel());
 
-    context.go('/after-checkin/$qrCode');
+    showModalBottomSheet(
+        showDragHandle: true,
+        useRootNavigator: true,
+        context: context,
+        builder: (context) =>
+            AfterCheckInScreen(id: _barcode!.rawValue.toString())).then(
+      (value) {
+        //subscribe to the scanner
+        _subscription = controller.barcodes.listen(_handleBarcode);
+      },
+    );
   }
 
   bool _isValidScan(Barcode scanData) {
     if (scanData.rawValue == null) {
       return false;
     }
-    // Define the regex pattern for the required format LLNNNNL
-    RegExp regex = RegExp(r'^[a-zA-Z]{2}\d{4}[a-zA-Z]$');
+
+    // Define the regex pattern for the required format LL-NNNNL
+    RegExp regex = RegExp(r'^[A-Z]{2}-\d{4}[A-Z]$');
     // Check if the scanned data matches the pattern
     return regex.hasMatch(scanData.rawValue?.trim() as String);
   }
